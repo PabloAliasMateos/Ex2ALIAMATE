@@ -532,25 +532,112 @@ public class SurveyActivity extends AppCompatActivity {
 
         // Survey values
 
+        // Q11
         RadioGroup radioGroup_1_1 = (RadioGroup) findViewById(R.id.radioGroup_1_1);
-
-        if (radioGroup_1_1.getCheckedRadioButtonId() == -1){
-            mySurvey.setSurveyStatus (0) ;
-            return -1;
-        }
+        if (radioGroup_1_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q21
+        RadioGroup radioGroup_2_1 = (RadioGroup) findViewById(R.id.radioGroup_2_1);
+        if (radioGroup_2_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q22
+        RadioGroup radioGroup_2_2 = (RadioGroup) findViewById(R.id.radioGroup_2_2);
+        if (radioGroup_2_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q23
+        RadioGroup radioGroup_2_3 = (RadioGroup) findViewById(R.id.radioGroup_2_3);
+        if (radioGroup_2_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q24
+        RadioGroup radioGroup_2_4 = (RadioGroup) findViewById(R.id.radioGroup_2_4);
+        if (radioGroup_2_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q25
+        RadioGroup radioGroup_2_5 = (RadioGroup) findViewById(R.id.radioGroup_2_5);
+        if (radioGroup_2_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q31
+        RadioGroup radioGroup_3_1 = (RadioGroup) findViewById(R.id.radioGroup_3_1);
+        if (radioGroup_3_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q32
+        RadioGroup radioGroup_3_2 = (RadioGroup) findViewById(R.id.radioGroup_3_2);
+        if (radioGroup_3_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q33
+        RadioGroup radioGroup_3_3 = (RadioGroup) findViewById(R.id.radioGroup_3_3);
+        if (radioGroup_3_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q41
+        RadioGroup radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
+        if (radioGroup_4_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q42
+        RadioGroup radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+        if (radioGroup_4_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q43
+        RadioGroup radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+        if (radioGroup_4_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q44
+        RadioGroup radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+        if (radioGroup_4_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q45
+        RadioGroup radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+        if (radioGroup_4_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q46
+        RadioGroup radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+        if (radioGroup_4_6.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        // Q47
+        RadioGroup radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+        if (radioGroup_4_7.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
 
 
         //2- Fill class attributes
 
+        // Header values
         mySurvey.setDate ((String) textView_date.getText()) ;
         mySurvey.setStartingTime ((String) textView_startingTime.getText()) ;
         mySurvey.setTastingTime ((String) textView_tastingTime.getText()) ;
         mySurvey.setLocation ((String) textView_location.getText()) ;
         mySurvey.setImage ((String) textView_imageName.getText()) ;
 
+        // Survey values
+
+        // Q11
+        radioGroup_1_1 = (RadioGroup) findViewById(R.id.radioGroup_1_1);
+        mySurvey.setAnswer(0,getAnswerNumber(radioGroup_1_1));  // inde 0 => Q11 (first question). The second parameter returns the radiobutton number selected of the specific radiogroup
+        System.out.println (getAnswerNumber(radioGroup_1_1));
+
         return 0;
     }
 
+    /**
+     *
+     * To get the radiobutton selected of the desired radiogroup (the answer is a char value to write it directly into txt file without casting it)
+     */
 
+    private char getAnswerNumber(RadioGroup radioGroup) {
+
+        char answerNumber = '0';
+        String id_radioButton = getResources().getResourceEntryName(radioGroup.getCheckedRadioButtonId()); // To recover string id, not number. Inside this string is the answer number
+
+        int index;
+        index = id_radioButton.indexOf("_",0);  // Return the index of the first occurrence of "_", starting in 0
+        index += 5;                             // The name of ids of views: _x_y_z, where z is the number of the answer => first _ = index => index + 5 = z
+        answerNumber = id_radioButton.charAt(index); // it returns the character at the specified index
+
+        return answerNumber;
+    }
+
+    /**
+     *
+     * To get the code of the selected radiogroup : Qxy
+     */
+
+    private String getQuestionCode(RadioGroup radioGroup) {
+
+        String questionCode = "Q";
+        String id_radioButton = getResources().getResourceEntryName(radioGroup.getCheckedRadioButtonId()); // To recover string id, not number. Inside this string is the answer number
+        int index;
+        char x;
+        char y;
+
+        index = id_radioButton.indexOf("_",0);  // Return the index of the first occurrence of "_", starting in 0
+        x = id_radioButton.charAt(index+1);       // The name of ids of views: _x_y_z, where x and y is the question code => first _ = index => index + 1 = x, index + 3 = y
+        y = id_radioButton.charAt(index+3);       // The name of ids of views: _x_y_z, where x and y is the question code => first _ = index => index + 1 = x, index + 3 = y
+        questionCode = questionCode + x + y;
+
+        return questionCode;
+    }
 
 } // End class

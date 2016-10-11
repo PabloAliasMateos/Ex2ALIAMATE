@@ -13,7 +13,25 @@ public class SurveyInformation {
     private String tastingTime;
     private String location;
     private String image;
-    //String answers [4][7];
+    /*
+    private char Q11;  // 0
+    private char Q21;  // 1
+    private char Q22;  // 2
+    private char Q23;  // 3
+    private char Q24;  // 4
+    private char Q25;  // 5
+    private char Q31;  // 6
+    private char Q32;  // 7
+    private char Q33;  // 8
+    private char Q41;  // 9
+    private char Q42;  // 10
+    private char Q43;  // 11
+    private char Q44;  // 12
+    private char Q45;  // 13
+    private char Q46;  // 14
+    private char Q47;  // 15
+    */
+    private char [] answers = new char [16];    // There are 16 questions
 
     // Constructor
     public SurveyInformation () {
@@ -24,7 +42,6 @@ public class SurveyInformation {
         tastingTime = "-";
         location = "-";
         image = "-";
-
     }
 
     // Methods
@@ -36,6 +53,8 @@ public class SurveyInformation {
     public void setTastingTime (String tastingTime) {this.tastingTime = tastingTime;}
     public void setLocation (String location) {this.location = location;}
     public void setImage (String image) {this.image = image;}
+    public void setAnswer (int index, char answer) {this.answers[index] = answer;}
+
     // Get
     public int getSurveyStatus () {return this.survey_status;}
     public String getDate () {return this.date;}
@@ -43,14 +62,13 @@ public class SurveyInformation {
     public String getTastingTime () {return this.tastingTime;}
     public String getLocation () {return this.location;}
     public String getImage () {return this.image;}
+    public char getAnswer (int index) {return this.answers[index];}
+
     // General
     public String getSurveyDBFormat () {
-
         String SurveyDBFormat;
-//+"\"\""
-        SurveyDBFormat = "{"+","+"\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location”:\""+":"+"\""+getLocation ()+"\""+"}";
-
-
+        SurveyDBFormat = "{"+"\"Q11\""+":"+"\""+getAnswer(0)+"\"" + "," + "\"Q21\""+":"+"\""+getAnswer(1)+"\"" + "," + "\"Q22\""+":"+"\""+getAnswer(2)+"\"" + "," +
+                "\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location\""+":"+"\""+getLocation ()+"\""+"}";
         return SurveyDBFormat;
     }
 
