@@ -29,18 +29,30 @@ public class SurveyInformation {
 
     // Methods
 
+    // Set
     public void setSurveyStatus (int survey_status) {this.survey_status = survey_status;}
     public void setDate (String date) {this.date = date;}
     public void setStartingTime (String startingTime) {this.startingTime = startingTime;}
     public void setTastingTime (String tastingTime) {this.tastingTime = tastingTime;}
     public void setLocation (String location) {this.location = location;}
     public void setImage (String image) {this.image = image;}
-
+    // Get
     public int getSurveyStatus () {return this.survey_status;}
     public String getDate () {return this.date;}
     public String getStartingTime () {return this.startingTime;}
     public String getTastingTime () {return this.tastingTime;}
     public String getLocation () {return this.location;}
     public String getImage () {return this.image;}
+    // General
+    public String getSurveyDBFormat () {
+
+        String SurveyDBFormat;
+//+"\"\""
+        SurveyDBFormat = "{"+","+"\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location”:\""+":"+"\""+getLocation ()+"\""+"}";
+
+
+        return SurveyDBFormat;
+    }
+
 
 }
