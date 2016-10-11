@@ -1,0 +1,174 @@
+<resources>
+
+    <string name="app_name">Survey Acquiring Application </string>
+    <string name="masterName">MISEA 16-17</string>
+    <string name="universityName">UC3M</string>
+    <string name="studentName">Alías Mateos, Pablo</string>
+    <string name="ViewSurveyName">VIEW SURVEY</string>
+    <string name="StartSurveyName">START SURVEY</string>
+    <string name="buttonCameraName">PHOTO</string>
+    <string name="buttonTastingTimeName">Tasting Time</string>
+    <string name="buttonSaveSurveyName">Save survey</string>
+
+    <!--======================================================================================== -->
+    <!-- SURVEY FRAGMENT
+        ======================================================================================== -->
+
+    <!-- GROUP 1: ABOUT THE PROCESS
+    ======================================================================================== -->
+    <string name="group_1">About the process</string>
+
+    <!-- Question 1.1 -->
+    <string name="question_1_1">Who approached who?</string>
+    <!-- Options -->
+    <string name="answer_1_1_1">The agent to the customer</string>
+    <string name="answer_1_1_2">The customer to the agent</string>
+    <string name="answer_1_1_3">Not known</string>
+
+    <!-- GROUP 2: ABOUT THE CUSTOMER
+    ======================================================================================== -->
+    <string name="group_2">About the customer</string>
+
+    <!-- Question 2.1-->
+    <string name="question_2_1">Gender:</string>
+    <!-- Options -->
+    <string name="answer_2_1_1">Male</string>
+    <string name="answer_2_1_2">Female</string>
+
+    <!-- Question 2.2-->
+    <string name="question_2_2">Age group:</string>
+    <!-- Options -->
+    <string name="answer_2_2_1">0-24</string>
+    <string name="answer_2_2_2">25-40</string>
+    <string name="answer_2_2_3">41-60</string>
+    <string name="answer_2_2_4">> 60</string>
+    <string name="answer_2_2_5">Not defined / Not clear</string>
+
+    <!-- Question 2.3-->
+    <string name="question_2_3">What was his/her initial attitude about the product?</string>
+    <!-- Options -->
+    <string name="answer_2_3_1">Amazed</string>
+    <string name="answer_2_3_2">Surprised</string>
+    <string name="answer_2_3_3">Neutral</string>
+    <string name="answer_2_3_4">Reluctant</string>
+    <string name="answer_2_3_5">Not defined / Not known</string>
+
+    <!-- Question 2.4-->
+    <string name="question_2_4">Did he/she tasted the product?</string>
+    <!-- Options -->
+    <string name="answer_2_4_1">Yes</string>
+    <string name="answer_2_4_2">No</string>
+
+    <!-- Question 2.5-->
+    <string name="question_2_5">If yes, what was his/her attitude after tasting?</string>
+    <!-- Options -->
+    <string name="answer_2_5_1">Amazed</string>
+    <string name="answer_2_5_2">Liking</string>
+    <string name="answer_2_5_3">Neutral</string>
+    <string name="answer_2_5_4">Disgusting</string>
+    <string name="answer_2_5_5">Not defined / Not known</string>
+
+    <!-- GROUP 3: ABOUT THE AGENT
+    ======================================================================================== -->
+    <string name="group_3">About the agent</string>
+
+    <!-- Question 3.1-->
+    <string name="question_3_1">Agent ID:</string>
+    <!-- Options -->
+    <string name="answer_3_1_1">Type agent number</string>
+
+    <!-- Question 3.2-->
+    <string name="question_3_2">Agent attitude:</string>
+    <!-- Options -->
+    <string name="answer_3_2_1">Pro-active</string>
+    <string name="answer_3_2_2">Smiling but not too pro-active</string>
+    <string name="answer_3_2_3">Neutral</string>
+    <string name="answer_3_2_4">Bored / Negative</string>
+    <string name="answer_3_2_5">Not defined / Not known</string>
+
+    <!-- Question 3.3-->
+    <string name="question_3_3">Agent attitude:</string>
+    <!-- Options -->
+    <string name="answer_3_3_1">Yes, the agent was active in asking</string>
+    <string name="answer_3_3_2">Neutral, both agent and customer were interested</string>
+    <string name="answer_3_3_3">No, the agent was only reactive to customer questions</string>
+    <string name="answer_3_3_4">Not defined / Not known</string>
+
+    <!-- GROUP 4: POST-TASTING INTERVIEW
+    ======================================================================================== -->
+    <string name="group_4">Post-tasting interview</string>
+
+    <!-- Question 4.1-->
+    <string name="question_4_1">Agent ID:</string>
+    <!-- Options -->
+    <string name="answer_4_1_1">25</string>
+    <string name="answer_4_1_2">25-40</string>
+    <string name="answer_4_1_3">41-60</string>
+    <string name="answer_4_1_4">> 60</string>
+    <string name="answer_4_1_5">Prefer not to say</string>
+
+    <!-- Question 4.2-->
+    <string name="question_4_2">How have you found the taste of the product?</string>
+    <!-- Options -->
+    <string name="answer_4_2_1">Delicious</string>
+    <string name="answer_4_2_2">Tasty</string>
+    <string name="answer_4_2_3">Plain</string>
+    <string name="answer_4_2_4">Awful / Negative</string>
+    <string name="answer_4_2_5">Not defined / Not known</string>
+
+    <!-- Question 4.3-->
+    <string name="question_4_3">What do you thing about its appearance?</string>
+    <!-- Options -->
+    <string name="answer_4_3_1">Beautiful</string>
+    <string name="answer_4_3_2">Attractive</string>
+    <string name="answer_4_3_3">Plain / Boring</string>
+    <string name="answer_4_3_4">Disgusting</string>
+    <string name="answer_4_3_5">Not defined / Not known</string>
+
+    <!-- Question 4.4-->
+    <string name="question_4_4">Are you buying the product today?</string>
+    <!-- Options -->
+    <string name="answer_4_4_1">Yes</string>
+    <string name="answer_4_4_2">No</string>
+    <string name="answer_4_4_3">Don’t know</string>
+
+    <!-- Question 4.5-->
+    <string name="question_4_5">Will you buy the product in the near future?</string>
+    <!-- Options -->
+    <string name="answer_4_5_1">Definitely</string>
+    <string name="answer_4_5_2">Probably</string>
+    <string name="answer_4_5_3">Maybe</string>
+    <string name="answer_4_5_4">No</string>
+    <string name="answer_4_5_5">Don’t know</string>
+
+    <!-- Question 4.6-->
+    <string name="question_4_6">Will you buy the product in the near future?</string>
+    <!-- Options -->
+    <string name="answer_4_6_1">Definitely</string>
+    <string name="answer_4_6_2">Probably</string>
+    <string name="answer_4_6_3">Maybe</string>
+    <string name="answer_4_6_4">No</string>
+    <string name="answer_4_6_5">Don’t know</string>
+
+    <!-- Question 4.7-->
+    <string name="question_4_7">What is your impression about the agent and its attitude?</string>
+    <!-- Options -->
+    <string name="answer_4_7_1">Enthusiastic</string>
+    <string name="answer_4_7_2">Friendly</string>
+    <string name="answer_4_7_3">Polite</string>
+    <string name="answer_4_7_4">Boring</string>
+    <string name="answer_4_7_5">Impolite</string>
+    <string name="answer_4_7_6">Not defined / Don’t know</string>
+
+    <!--======================================================================================== -->
+    <!-- OPTIONS SURVEY FRAGMENT
+        ======================================================================================== -->
+
+    <!-- LABELS-->
+    <string name="label_date">Date:</string>
+    <string name="label_startingTime">Starting Time:</string>
+    <string name="label_tastingTime">Tasting Time:</string>
+    <string name="label_imgGalleryName">Image:</string>
+    <string name="label_location">Location:</string>
+
+</resources>
