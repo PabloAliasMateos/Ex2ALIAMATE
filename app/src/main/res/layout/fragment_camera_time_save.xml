@@ -62,72 +62,72 @@
     <!--Date-->
     <TextView
         android:text="@string/label_date"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/imageView_survey_picture"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
         android:textColor="@color/labels"
         android:textStyle="normal|bold"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:id="@+id/textView_label_date" />
     <!--Starting Time-->
     <TextView
         android:text="@string/label_startingTime"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/imageView_survey_picture"
         android:layout_alignTop="@+id/textView_label_date"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/labels"
         android:textStyle="normal|bold"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:id="@+id/textView_label_starting_time" />
     <!--Tasting Time-->
     <TextView
         android:text="@string/label_tastingTime"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/imageView_survey_picture"
         android:layout_alignTop="@+id/textView_label_starting_time"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/labels"
         android:textStyle="normal|bold"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:id="@+id/textView_label_tasting_time" />
     <!--Location-->
     <TextView
         android:text="@string/label_location"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/imageView_survey_picture"
         android:layout_alignTop="@+id/textView_label_tasting_time"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/labels"
         android:textStyle="normal|bold"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:id="@+id/textView_label_location" />
     <!--Image-->
     <TextView
         android:text="@string/label_imgGalleryName"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/imageView_survey_picture"
         android:layout_alignTop="@+id/textView_label_location"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/labels"
         android:textStyle="normal|bold"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:id="@+id/textView_label_imgGalleryName" />
 
     <!--VALUES-->
@@ -135,12 +135,12 @@
     <!--Date-->
     <TextView
         android:text="-"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/textView_label_date"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="15dp"
         android:textColor="@color/values"
         android:textSize="12sp"
@@ -148,12 +148,12 @@
     <!--Starting Time-->
     <TextView
         android:text="-"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/textView_label_starting_time"
         android:layout_alignTop="@+id/textView_label_date"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/values"
         android:textSize="12sp"
@@ -161,12 +161,12 @@
     <!--Tasting Time-->
     <TextView
         android:text="-"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/textView_label_tasting_time"
         android:layout_alignTop="@+id/textView_label_starting_time"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/values"
         android:textSize="12sp"
@@ -174,12 +174,12 @@
     <!--Location-->
     <TextView
         android:text="-"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/textView_label_location"
         android:layout_alignTop="@+id/textView_label_tasting_time"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/values"
         android:textSize="12sp"
@@ -187,12 +187,12 @@
     <!--Image-->
     <TextView
         android:text="-"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/textView_label_imgGalleryName"
         android:layout_alignTop="@+id/textView_label_location"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/values"
         android:textSize="12sp"

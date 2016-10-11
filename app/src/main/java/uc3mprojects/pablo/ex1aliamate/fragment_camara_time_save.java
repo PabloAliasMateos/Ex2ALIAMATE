@@ -2,6 +2,7 @@ package uc3mprojects.pablo.ex1aliamate;
 
 import android.Manifest;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,10 +11,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.IntegerRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -52,11 +58,16 @@ public class fragment_camara_time_save extends Fragment {
     public static final int REQUEST_CAMERA = 10;                 // without extends Fragment, it would be just a void java class
     public static final int IMAGE_PERMISSION_REQUEST_CODE = 1;
     public static final int SURVEY_PERMISSION_REQUEST_CODE = 2;
+    public static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
 
     private View fragment_view;
     TextView textView_date ;
     TextView textView_startingTime ;
     TextView textView_tastingTime ;
+    private TextView textView_location;
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     private ImageView imageView_survey_picture;                  // Now all the methods can access to this View
     private ImageButton imageButton_clock;
@@ -105,6 +116,53 @@ public class fragment_camara_time_save extends Fragment {
         };
         chronometer.start();
         */
+
+        // LOCATION
+
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider, following requestLocationUpdates function parameters
+                showNewLocation(location);
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+                // This method will be called when GPS is enabled
+            }
+
+            public void onProviderDisabled(String provider) {
+                // This method will be called when GPS is disabled
+                Intent gps_intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);   // To launch the menu to enable GPS
+                startActivity(gps_intent);
+            }
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            // To show the last known location until the new value is gotten
+            String locationProvider = LocationManager.GPS_PROVIDER;
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            showNewLocation (lastKnownLocation);
+            // To start checking the location
+            locationManager.requestLocationUpdates("gps", 5000, 5, locationListener); // The location will be get from gps, it will be checked every 5 seconds or when user moves 5 meters
+        } else {
+            //permission failed, request
+            String[] permissionRequest = {Manifest.permission.ACCESS_FINE_LOCATION};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {                           // Check the current SDK target version (run-time permissions => API 23)
+                requestPermissions(permissionRequest, LOCATION_PERMISSION_REQUEST_CODE);
+            }
+            else
+                Toast.makeText(getActivity(), "PERMISSION DENIED: Can not access the GPS. ", Toast.LENGTH_LONG ).show();
+        }
+
 
         // Animation to make blik chronometer button. It will be stopped once clock button is pressed
 
@@ -158,7 +216,11 @@ public class fragment_camara_time_save extends Fragment {
                 else{
                     //permission failed, request
                     String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                    requestPermissions (permissionRequest, SURVEY_PERMISSION_REQUEST_CODE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {                       // Check the current SDK target version (run-time permissions => API 23)
+                        requestPermissions (permissionRequest, SURVEY_PERMISSION_REQUEST_CODE);
+                    }
+                    else
+                        Toast.makeText(getActivity(), "PERMISSION DENIED: Can not access the memory. ", Toast.LENGTH_LONG ).show();
                 }
 
             }
@@ -175,7 +237,7 @@ public class fragment_camara_time_save extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);      // data content the image in this case. This method wil receive a request code, in order to filter who has invoked it
 
-        if (requestCode == REQUEST_CAMERA) {
+        if (requestCode == REQUEST_CAMERA ) {
             // We are hearing from the camera (this method only is valid if we do not specify the pat to store the image)
             //Bitmap cameraImage = (Bitmap) data.getExtras().get("data"); // accessing to the image
             //imageView_survey_picture.setImageBitmap(cameraImage);       // The image that has been captured will be shown in the fragment
@@ -187,7 +249,9 @@ public class fragment_camara_time_save extends Fragment {
             else{
                 //permission failed, request
                 String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                requestPermissions (permissionRequest, IMAGE_PERMISSION_REQUEST_CODE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {           // Check the current SDK target version (run-time permissions => API 23)
+                    requestPermissions (permissionRequest, IMAGE_PERMISSION_REQUEST_CODE);
+                }
             }
         }
     }
@@ -367,6 +431,12 @@ public class fragment_camara_time_save extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showNewLocation(Location location) {
+
+        textView_location =  (TextView) fragment_view.findViewById(R.id.textView_value_location);
+        textView_location.setText(String.format("%.4f",location.getLatitude())+" - "+ String.format("%.4f",location.getAltitude()));
 
     }
 
