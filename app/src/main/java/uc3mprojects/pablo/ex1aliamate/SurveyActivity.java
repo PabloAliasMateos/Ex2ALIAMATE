@@ -1,5 +1,7 @@
 package uc3mprojects.pablo.ex1aliamate;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -90,7 +92,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int seconds_counter = 0;
     private int minutes_counter = 0;
     private int FirstOnCreateCall = 1;                          // When change from portrait to land scape => activity lifecycle is carried out completely => only when
-                                                                // onCreate is call for the first time it is necessary to initialize the values (for example if user rotates the mobile in the middle of the survey)
+    // onCreate is call for the first time it is necessary to initialize the values (for example if user rotates the mobile in the middle of the survey)
 
     // Report tags
 
@@ -184,10 +186,9 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             clockButton_animationState = 1;
             timerState = 1;
 
-        }
-        else {  // change orientation
+        } else {  // change orientation
 
-            if (clockButton_animationState == 1 ) { // To continue temporizing when user change the orientation if previously user was temporizing
+            if (clockButton_animationState == 1) { // To continue temporizing when user change the orientation if previously user was temporizing
                 imageButton_clock.startAnimation(animation);
                 startTimer_tastingTime();
             }
@@ -347,6 +348,55 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     // ========================================================================================================================================
     // OVERRIDE METHODS
     // ========================================================================================================================================
+
+    /**
+     * With this method, onStop and onDestroy methods are not called when back button is pressed
+     */
+
+    @Override
+    public void onBackPressed() {
+
+        // DIALOG TO EXIT OR NOT
+
+        AlertDialog.Builder myBuild = new AlertDialog.Builder(this);
+        myBuild.setMessage("Are you sure you want to close the current survey?");
+        myBuild.setTitle("EXIT SURVEY");
+        // Positive button
+        myBuild.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // IF USER PRESSES OK
+            /*
+                if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.removeUpdates(locationListener);*/
+                finish();       // android internal function to close the activity
+                Log.d(TAG, "MainActivity: EXIT()");
+            }
+        });
+        // Negative button
+        myBuild.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // IF USER PRESSES CANCEL
+                dialog.cancel();    // android internal function to keep alive the activity
+            }
+        });
+
+        AlertDialog dialog = myBuild.create();      // creating the dialog
+        dialog.show();                              // showing the dialog
+
+        Log.d(TAG, "MainActivity: Back pressed");
+        return;
+    }
 
     /**
      * Method to catch the result of an activity called with onActivityResult
