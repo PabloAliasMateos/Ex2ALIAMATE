@@ -96,7 +96,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int clockButton_animationState = 0;
     private int seconds_counter = 0;
     private int minutes_counter = 0;
-    private int current_survey_index;
+    private int current_index_value = 0;                       // To detect if the current survey has been saved before and store index value
 
     // Report tags
 
@@ -219,7 +219,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
                 invokeCamera();
 
-
             }
         });
 
@@ -246,11 +245,21 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             @Override
             public void onClick(View v) {
 
+                String message;
+                String tittle;
+
+                if (current_index_value == 0)  {     // First time that save button is pressed
+                    message = "Are you sure you want to save the current survey?";
+                    tittle = "SAVE SURVEY";}
+                else {                               // To make some modifications (for example, wron answer)
+                    message = "Are you sure you want to replace the stored survey?";
+                    tittle = "REPLACE SURVEY";}
+
                 // DIALOG TO SAVE OR NOT
 
                 AlertDialog.Builder myBuild = new AlertDialog.Builder(v.getContext());
-                myBuild.setMessage("Are you sure you want to save the current survey?");
-                myBuild.setTitle("SAVE SURVEY AND EXIT");
+                myBuild.setMessage(message);
+                myBuild.setTitle(tittle);
                 // Positive button
                 myBuild.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -518,6 +527,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         savedInstanceState.putInt("seconds_counter",seconds_counter);
         savedInstanceState.putInt("clockButton_animationState",clockButton_animationState);
         savedInstanceState.putInt("timer_state",timerState);
+        savedInstanceState.putInt("current_index_value",current_index_value);
 
         // etc.
     }
@@ -671,6 +681,12 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             clockButton_animationState = savedInstanceState.getInt("clockButton_animationState");
         }
 
+        // SAVE OR REPLACE SURVEY
+        if (savedInstanceState != null) {
+
+            current_index_value = savedInstanceState.getInt("current_index_value");
+        }
+
     }
 
     /**
@@ -732,9 +748,10 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     private void saveSurvey() {
 
-
         //1- Save survey information into txt file
+
         try {
+
             SurveyInformation mySurvey = new SurveyInformation ();      // class to store survey values
             readSurveyValues(mySurvey);                                 // Reads the survey values and stores the content into SurveyInformation object
 
@@ -745,51 +762,86 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
                 if (survey_info.exists()){ // there are more surveys stored previously
 
-                 //1- Reads the number of surveys stored
+                    // add/change new/current survey
 
-                    FileReader survey_info_reader = new FileReader(survey_info);
-                    BufferedReader b = new BufferedReader(survey_info_reader);
-                    String last_user_index = b.readLine();              // user index is stored in the first line. readline increments linepointer
+                    if (current_index_value == 0) { // First save of the current survey => SAVE SURVEY
 
-                    //System.out.println(last_user_index);
-                    int current_index_value = Integer.parseInt(last_user_index, 10) + 1;
+                        //1- Reads the number of surveys stored
 
-                 //2- Stores survey ID (USER_1,USER_2, ...) + survey values
+                        FileReader survey_info_reader = new FileReader(survey_info);
+                        BufferedReader b = new BufferedReader(survey_info_reader);
+                        String last_user_index = b.readLine();              // user index is stored in the first line. readline increments linepointer
 
-                    //2.1 - number of surveys
+                        //2- Stores survey ID (USER_1,USER_2, ...) + survey values
 
-                    List<String> lines = new ArrayList<String>();       // List which stores all document lines
-                    lines.add(String.valueOf(current_index_value));     // First line = number of surveys
-                    String aux;
-                    while((aux = b.readLine())!=null) {                 // This loop starts reading the second line (each readline usage increments linepointer)
-                        lines.add(aux);
+                        int new_index_value = Integer.parseInt(last_user_index, 10) + 1;
+
+                        //2.1 - number of surveys
+
+                        List<String> lines = new ArrayList<String>();       // List which stores all document lines
+                        lines.add(String.valueOf(new_index_value));         // First line = number of surveys
+                        String aux;
+                        while((aux = b.readLine())!=null) {                 // This loop starts reading the second line (each readline usage increments linepointer)
+                            lines.add(aux);
+                        }
+
+                        b.close();
+
+                        FileWriter survey_info_writer = new FileWriter(survey_info, false); // false => overwrite the previous content
+
+                        for (int i = 0; i<lines.size();i++){    // Reload the content with the updated values
+                            if (i == 0) {survey_info_writer.append(lines.get(i));}
+                            else {survey_info_writer.append(System.getProperty("line.separator") + lines.get(i));}
+                        }
+                        survey_info_writer.flush();
+                        survey_info_writer.close();
+
+                        current_index_value = new_index_value;      // now the following time that save button is pressed, it detecs that it is a correction operation
+                        survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
+                        survey_info_writer.append(System.getProperty("line.separator") + "USER_" + current_index_value);
+                        survey_info_writer.append(System.getProperty("line.separator") + mySurvey.getSurveyDBFormat());
+                        survey_info_writer.flush();
+                        survey_info_writer.close();
+
                     }
+                    else {  // Modify current survey saved previously => REPLACE SURVEY
 
-                    b.close();
+                        //1- Reads the number of surveys stored
 
-                    FileWriter survey_info_writer = new FileWriter(survey_info, false); // false => overwrite the previous content
+                        FileReader survey_info_reader = new FileReader(survey_info);
+                        BufferedReader b = new BufferedReader(survey_info_reader);
+                        String last_user_index = b.readLine();              // user index is stored in the first line. readline increments linepointer
 
-                    for (int i = 0; i<lines.size();i++){    // Reload the content with the updated values
-                        if (i == 0) {survey_info_writer.append(lines.get(i));}
-                        else {survey_info_writer.append(System.getProperty("line.separator") + lines.get(i));}
+                        survey_info_reader = new FileReader(survey_info);
+                        b = new BufferedReader(survey_info_reader);
+                        List<String> lines = new ArrayList<String>();                // List which stores all document lines
+                        String aux2;
+                        while((aux2 = b.readLine())!=null) {
+                            lines.add(aux2);
+                        }
+                        b.close();
+
+                        lines.set(lines.size()-1,mySurvey.getSurveyDBFormat());    // replace the proper line (the last one => file index = lines.size - 1)
+                       // lines.set(lines.size()-1,"Pablo");    // replace the proper line (the last one => file index = lines.size - 1)
+
+                        FileWriter survey_info_writer = new FileWriter(survey_info, false); // false => overwrite the previous content
+
+                        for (int i = 0; i<lines.size();i++){    // Reload the content with the updated values
+                            if (i == 0) {survey_info_writer.append(lines.get(i));}
+                            else {survey_info_writer.append(System.getProperty("line.separator") + lines.get(i));}
+                        }
+                        survey_info_writer.flush();
+                        survey_info_writer.close();
                     }
-                    survey_info_writer.flush();
-                    survey_info_writer.close();
-
-                    //2.2 - add new survey
-                    survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
-                    survey_info_writer.append(System.getProperty("line.separator") + "USER_" + current_index_value);
-                    survey_info_writer.append(System.getProperty("line.separator") + mySurvey.getSurveyDBFormat());
-                    survey_info_writer.flush();
-                    survey_info_writer.close();
                 }
-                else { // if there is no txt file to store surveys
+                else { // if there is no txt file to store surveys => create it
                     FileWriter survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
                     survey_info_writer.append("1");                                // there is one survey stored, the current survey
                     survey_info_writer.append(System.getProperty("line.separator") + "USER_1");
                     survey_info_writer.append(System.getProperty("line.separator") + mySurvey.getSurveyDBFormat());
                     survey_info_writer.flush();
                     survey_info_writer.close();
+                    current_index_value = 1;
                 }
             } // end if
             else {
@@ -803,7 +855,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     }
 
-
     /**
      *
      * To show the location value in the proper textView
@@ -814,7 +865,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
      //1- Check if all the fields are filled
 
-        /*
+
         // Header values
 
         textView_imageName = (TextView) findViewById(R.id.textView_value_imgGalleryName);
@@ -963,7 +1014,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         mySurvey.setAnswer(15,getAnswerNumber(radioGroup_4_7));
         System.out.println (getAnswerNumber(radioGroup_4_7));
 
-        */
         return 0;
     }
 
