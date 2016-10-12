@@ -89,9 +89,14 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int clockButton_animationState = 0;
     private int seconds_counter = 0;
     private int minutes_counter = 0;
-    final String TAG = "States";
     private int FirstOnCreateCall = 1;                          // When change from portrait to land scape => activity lifecycle is carried out completely => only when
                                                                 // onCreate is call for the first time it is necessary to initialize the values (for example if user rotates the mobile in the middle of the survey)
+
+    // Report tags
+
+    final String TAG = "States_lifeCycle";
+    final String TAG2 = "Location_debug";
+
 
     // ========================================================================================================================================
     // LIFE-CYCLE METHODS
@@ -162,7 +167,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         }
 
         //3- TIMER to count tasting time
-
 
         // animation to make blik chronometer button. It will be stopped once clock button is pressed
         final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
@@ -330,7 +334,10 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         super.onDestroy();
 
         // GPS managemet is done through onStop method. Activity lifecycle => always onStop befor onDestroy
-        T.cancel();     // Release timer
+
+        // Release timer. Only if timer is active, otherwise it has been already deleted
+        if (clockButton_animationState == 1)
+            T.cancel();
 
         Log.d(TAG, "MainActivity: onDestroy()");
         Log.d(TAG, String.valueOf(FirstOnCreateCall));
@@ -355,7 +362,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {        // Check the current SDK target version (run-time permissions => API 23)
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        showImageCaptured();
+                        showImageCaptured(imageName);
                     } else {
                         //permission failed, request
                         String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -390,7 +397,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             case IMAGE_PERMISSION_REQUEST_CODE:
 
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    showImageCaptured();
+                    showImageCaptured(imageName);
                 else
                     Toast.makeText(this, "PERMISSION DENIED: Can not save the image. ", Toast.LENGTH_LONG).show();
                 return;
@@ -497,13 +504,17 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
      *  To show the image in imageView. It is necessary to provide run-time permissions and manifest permissions for android 6.0
      */
 
-    private void showImageCaptured() {
+    private void showImageCaptured(String image_name) {
 
-        String imagePath = storagePath + "/" + imageName ;
+        String imagePath = storagePath + "/" + image_name ;
         Bitmap myImg = BitmapFactory.decodeFile(imagePath);
+        // Without resize the image, when it is large, it leads into memory allocation error
+        int h = 100; // height in pixels
+        int w = 50; // width in pixels
+        myImg = Bitmap.createScaledBitmap(myImg, h, w, true);
         imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
         textView_imageName =  (TextView) findViewById(R.id.textView_value_imgGalleryName);
-        textView_imageName.setText(imageName);
+        textView_imageName.setText(image_name);
 
     }
 
@@ -575,6 +586,15 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             textView_imageName.setText(savedInstanceState.getString("imageName"));
         }
 
+        // IMAGE VIEW
+
+        if (savedInstanceState != null) {
+
+            if (!savedInstanceState.getString("imageName").equals("-")) {  // if an image has been capture previously
+                showImageCaptured(savedInstanceState.getString("imageName"));
+            }
+        }
+
         // LOCATION
 
         if (savedInstanceState != null) {
@@ -602,7 +622,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     private void startTimer_tastingTime() {
 
-        T=new Timer();
+        T=new Timer();      // Every time that T.cancel() is called, T object is destroyed => it is mandatory to instantiate it again
         T.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -634,8 +654,16 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     private void showNewLocation(Location location) {
 
-        textView_location =  (TextView) findViewById(R.id.textView_value_location);
-        textView_location.setText(String.format("%.4f",location.getLatitude())+" - "+ String.format("%.4f",location.getAltitude()));
+       if (location != null) {  // Sometimes it can return null location, making crash the app if it is not handled correctly
+           textView_location = (TextView) findViewById(R.id.textView_value_location);
+           textView_location.setText(String.format("%.4f", location.getLatitude()) + " - " + String.format("%.4f", location.getAltitude()));
+       }
+        else {
+
+           Log.d (TAG2,"Null location");
+
+       }
+
 
     }
 
