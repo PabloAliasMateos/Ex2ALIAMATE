@@ -44,18 +44,23 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class SurveyActivity extends AppCompatActivity { // without extends Fragment, it would be just a void java class (heritance)
 
@@ -91,8 +96,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int clockButton_animationState = 0;
     private int seconds_counter = 0;
     private int minutes_counter = 0;
-    private int FirstOnCreateCall = 1;                          // When change from portrait to land scape => activity lifecycle is carried out completely => only when
-    // onCreate is call for the first time it is necessary to initialize the values (for example if user rotates the mobile in the middle of the survey)
+    private int current_survey_index;
 
     // Report tags
 
@@ -112,12 +116,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         imageView_survey_picture = (ImageView) findViewById(R.id.imageView_survey_picture);  // All methods can access to imageView_survey_picture view
 
         //1- VALUES INITIALIZATION
-
-        /*
-        if (savedInstanceState != null) {    // The first time is necessary to initialize the values
-
-            FirstOnCreateCall = 0;
-        }*/
 
         dataInitialization(savedInstanceState);  // savedInstanceState == null => first onCreate call | savedInstanceState != null => recover info from the previous state when user changes the orientation
 
@@ -158,7 +156,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
             showNewLocation(lastKnownLocation);
             // To start checking the location
-            locationManager.requestLocationUpdates("gps", 5000, 5, locationListener); // The location will be get from gps, it will be checked every 5 seconds or when user moves 5 meters
+            locationManager.requestLocationUpdates("gps", 5000, 5, locationListener);       // The location will be get from gps, it will be checked every 5 seconds or when user moves 5 meters
         } else {
             //permission failed, request
             String[] permissionRequest = {Manifest.permission.ACCESS_FINE_LOCATION};
@@ -171,11 +169,11 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         //3- TIMER to count tasting time
 
         // animation to make blik chronometer button. It will be stopped once clock button is pressed
-        final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
-        animation.setDuration(700); // duration - half a second
-        animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
-        animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
-        animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+        final Animation animation = new AlphaAnimation(1, 0);                       // Change alpha from fully visible to invisible
+        animation.setDuration(700);                                                 // duration - half a second
+        animation.setInterpolator(new LinearInterpolator());                        // do not alter animation rate
+        animation.setRepeatCount(Animation.INFINITE);                               // Repeat animation infinitely
+        animation.setRepeatMode(Animation.REVERSE);                                 // Reverse animation at the end so the button will fade back in
         imageButton_clock = (ImageButton) findViewById(R.id.imageButton_clock);
 
 
@@ -243,32 +241,57 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             }
         });
 
-        // SAVE BUTTON
+        //6- SAVE SURVEY BUTTON
         findViewById(R.id.imageButton_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // checking SDK target version. Newest versions need run time permissions
+                // DIALOG TO SAVE OR NOT
 
-                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                        saveSurvey();
-                    else {
-                        //permission failed, request
-                        String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                        // Check the current SDK target version (run-time permissions => API 23)
-                        requestPermissions(permissionRequest, SURVEY_PERMISSION_REQUEST_CODE);
-                    } // end request permission
-                } else {
-                    saveSurvey();
-                } // end check version
+                AlertDialog.Builder myBuild = new AlertDialog.Builder(v.getContext());
+                myBuild.setMessage("Are you sure you want to save the current survey?");
+                myBuild.setTitle("SAVE SURVEY AND EXIT");
+                // Positive button
+                myBuild.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // IF USER PRESSES OK
 
-            }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // checking SDK target version. Newest versions need run time permissions
+
+                            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                                saveSurvey();
+                            else {
+                                //permission failed, request
+                                String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                                // Check the current SDK target version (run-time permissions => API 23)
+                                requestPermissions(permissionRequest, SURVEY_PERMISSION_REQUEST_CODE);
+                            } // end request permission
+                        } else {
+                            saveSurvey();
+                        } // end check version
+
+                    }
+                });
+                // Negative button
+                myBuild.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // IF USER PRESSES CANCEL
+                        dialog.cancel();    // android internal function to keep alive the activity
+                    }
+                });
+
+                AlertDialog dialog = myBuild.create();      // creating the dialog
+                dialog.show();                              // showing the dialog
+
+
+            } // en onClick
         });
 
         Log.d(TAG, "MainActivity: onCreate()");
 
     } // end onCreate
-
 
     @Override
     protected void onRestart() {
@@ -341,7 +364,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             T.cancel();
 
         Log.d(TAG, "MainActivity: onDestroy()");
-        Log.d(TAG, String.valueOf(FirstOnCreateCall));
     }
 
 
@@ -366,20 +388,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // IF USER PRESSES OK
-            /*
-                if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                locationManager.removeUpdates(locationListener);*/
                 finish();       // android internal function to close the activity
-                Log.d(TAG, "MainActivity: EXIT()");
             }
         });
         // Negative button
@@ -394,7 +403,6 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         AlertDialog dialog = myBuild.create();      // creating the dialog
         dialog.show();                              // showing the dialog
 
-        Log.d(TAG, "MainActivity: Back pressed");
         return;
     }
 
@@ -728,22 +736,58 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         //1- Save survey information into txt file
         try {
             SurveyInformation mySurvey = new SurveyInformation ();      // class to store survey values
-            readSurveyValues(mySurvey);                                 // Read the survey values
+            readSurveyValues(mySurvey);                                 // Reads the survey values and stores the content into SurveyInformation object
 
-            if (mySurvey.getSurveyStatus () == 1){                      // Status = 1 => completed => save the survey
+            if (mySurvey.getSurveyStatus () == 1){                      // Status = 1 => completed => save the survey. This flag is changed in readSurveyValues
 
                 directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 File survey_info = new File (directory,"EX1_2016_USERS.txt");
 
-                if (survey_info.exists()){
-                    FileWriter survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
+                if (survey_info.exists()){ // there are more surveys stored previously
+
+                 //1- Reads the number of surveys stored
+
+                    FileReader survey_info_reader = new FileReader(survey_info);
+                    BufferedReader b = new BufferedReader(survey_info_reader);
+                    String last_user_index = b.readLine();              // user index is stored in the first line. readline increments linepointer
+
+                    //System.out.println(last_user_index);
+                    int current_index_value = Integer.parseInt(last_user_index, 10) + 1;
+
+                 //2- Stores survey ID (USER_1,USER_2, ...) + survey values
+
+                    //2.1 - number of surveys
+
+                    List<String> lines = new ArrayList<String>();       // List which stores all document lines
+                    lines.add(String.valueOf(current_index_value));     // First line = number of surveys
+                    String aux;
+                    while((aux = b.readLine())!=null) {                 // This loop starts reading the second line (each readline usage increments linepointer)
+                        lines.add(aux);
+                    }
+
+                    b.close();
+
+                    FileWriter survey_info_writer = new FileWriter(survey_info, false); // false => overwrite the previous content
+
+                    for (int i = 0; i<lines.size();i++){    // Reload the content with the updated values
+                        if (i == 0) {survey_info_writer.append(lines.get(i));}
+                        else {survey_info_writer.append(System.getProperty("line.separator") + lines.get(i));}
+                    }
+                    survey_info_writer.flush();
+                    survey_info_writer.close();
+
+                    //2.2 - add new survey
+                    survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
+                    survey_info_writer.append(System.getProperty("line.separator") + "USER_" + current_index_value);
                     survey_info_writer.append(System.getProperty("line.separator") + mySurvey.getSurveyDBFormat());
                     survey_info_writer.flush();
                     survey_info_writer.close();
                 }
-                else {
+                else { // if there is no txt file to store surveys
                     FileWriter survey_info_writer = new FileWriter(survey_info, true); // true => not overwrite the previous content
-                    survey_info_writer.append(mySurvey.getSurveyDBFormat());
+                    survey_info_writer.append("1");                                // there is one survey stored, the current survey
+                    survey_info_writer.append(System.getProperty("line.separator") + "USER_1");
+                    survey_info_writer.append(System.getProperty("line.separator") + mySurvey.getSurveyDBFormat());
                     survey_info_writer.flush();
                     survey_info_writer.close();
                 }
@@ -770,6 +814,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
      //1- Check if all the fields are filled
 
+        /*
         // Header values
 
         textView_imageName = (TextView) findViewById(R.id.textView_value_imgGalleryName);
@@ -918,6 +963,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         mySurvey.setAnswer(15,getAnswerNumber(radioGroup_4_7));
         System.out.println (getAnswerNumber(radioGroup_4_7));
 
+        */
         return 0;
     }
 
