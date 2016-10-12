@@ -67,8 +67,10 @@ public class SurveyInformation {
     // General
     public String getSurveyDBFormat () {
         String SurveyDBFormat;
-        SurveyDBFormat = "{"+"\"Q11\""+":"+"\""+getAnswer(0)+"\"" + "," + "\"Q21\""+":"+"\""+getAnswer(1)+"\"" + "," + "\"Q22\""+":"+"\""+getAnswer(2)+"\"" + "," +
-                "\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location\""+":"+"\""+getLocation ()+"\""+"}";
+        SurveyDBFormat = "{"+"\"Q11\""+":"+"\""+getAnswer(0)+"\"" + "," + "\"Q21\""+":"+"\""+getAnswer(1)+"\"" + "," + "\"Q22\""+":"+"\""+getAnswer(2)+"\"" + "," + "\"Q23\""+":"+"\""+getAnswer(3)+"\"" + "," + "\"Q24\""+":"+"\""+getAnswer(4)+"\"" + "," +
+                "\"Q25\""+":"+"\""+getAnswer(5)+"\"" + "," + "\"Q31\""+":"+"\""+getAnswer(6)+"\"" + "," + "\"Q32\""+":"+"\""+getAnswer(7)+"\"" + "," + "\"Q33\""+":"+"\""+getAnswer(8)+"\"" + "," + "\"Q41\""+":"+"\""+getAnswer(9)+"\"" + "," +
+                "\"Q42\""+":"+"\""+getAnswer(10)+"\"" + "," + "\"Q43\""+":"+"\""+getAnswer(11)+"\"" + "," + "\"Q44\""+":"+"\""+getAnswer(12)+"\"" + "," + "\"Q45\""+":"+"\""+getAnswer(13)+"\"" + "," + "\"Q46\""+":"+"\""+getAnswer(14)+"\"" + "," +
+                "\"Q47\""+":"+"\""+getAnswer(15)+"\"" + "," + "\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location\""+":"+"\""+getLocation ()+"\""+"}";
         return SurveyDBFormat;
     }
 

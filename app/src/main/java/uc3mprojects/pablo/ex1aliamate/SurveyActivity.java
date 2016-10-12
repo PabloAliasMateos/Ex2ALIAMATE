@@ -63,6 +63,7 @@ public class SurveyActivity extends AppCompatActivity {
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
 
+    final String TAG = "States";
 
     private TextView textView_date;
     private TextView textView_startingTime;
@@ -123,6 +124,7 @@ public class SurveyActivity extends AppCompatActivity {
 
             public void onProviderDisabled(String provider) {
                 // This method will be called when GPS is disabled
+                //Toast.makeText(this, "PERMISSION DENIED: Can not access GPS. Please, activte GPS", Toast.LENGTH_LONG).show();
                 Intent gps_intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);   // To launch the menu to enable GPS
                 startActivity(gps_intent);
             }
@@ -219,23 +221,94 @@ public class SurveyActivity extends AppCompatActivity {
 
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
                         saveSurvey();
-                    else
-                    {
+                    else {
                         //permission failed, request
                         String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
                         // Check the current SDK target version (run-time permissions => API 23)
                         requestPermissions(permissionRequest, SURVEY_PERMISSION_REQUEST_CODE);
                     } // end request permission
-                }
-                else
-                {
+                } else {
                     saveSurvey();
                 } // end check version
 
             }
         });
 
+        Log.d(TAG, "MainActivity: onCreate()");
+
     } // end onCreate
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        // Restart listener when app goes back to foreground
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates("gps", 5000, 5, locationListener);
+
+        Log.d(TAG, "MainActivity: onRestart()");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "MainActivity: onStart()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "MainActivity: onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "MainActivity: onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Remove the GPS listener (battery management)
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.removeUpdates(locationListener);
+
+        Log.d(TAG, "MainActivity: onStop()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // GPS managemet is done through onStop method. Activity lifecycle => always onStop befor onDestroy
+        T.cancel();     // Release timer
+
+        Log.d(TAG, "MainActivity: onDestroy()");
+    }
+
 
     // ========================================================================================================================================
     // OVERRIDE METHODS
@@ -595,8 +668,68 @@ public class SurveyActivity extends AppCompatActivity {
 
         // Q11
         radioGroup_1_1 = (RadioGroup) findViewById(R.id.radioGroup_1_1);
-        mySurvey.setAnswer(0,getAnswerNumber(radioGroup_1_1));  // inde 0 => Q11 (first question). The second parameter returns the radiobutton number selected of the specific radiogroup
+        mySurvey.setAnswer(0,getAnswerNumber(radioGroup_1_1));  // index 0 => Q11 (first question). The second parameter returns the radiobutton number selected of the specific radiogroup
         System.out.println (getAnswerNumber(radioGroup_1_1));
+        // Q21
+        radioGroup_2_1 = (RadioGroup) findViewById(R.id.radioGroup_2_1);
+        mySurvey.setAnswer(1,getAnswerNumber(radioGroup_2_1));
+        System.out.println (getAnswerNumber(radioGroup_2_1));
+        // Q22
+        radioGroup_2_2 = (RadioGroup) findViewById(R.id.radioGroup_2_2);
+        mySurvey.setAnswer(2,getAnswerNumber(radioGroup_2_2));
+        System.out.println (getAnswerNumber(radioGroup_2_2));
+        // Q23
+        radioGroup_2_3 = (RadioGroup) findViewById(R.id.radioGroup_2_3);
+        mySurvey.setAnswer(3,getAnswerNumber(radioGroup_2_3));
+        System.out.println (getAnswerNumber(radioGroup_2_3));
+        // Q24
+        radioGroup_2_4 = (RadioGroup) findViewById(R.id.radioGroup_2_4);
+        mySurvey.setAnswer(4,getAnswerNumber(radioGroup_2_4));
+        System.out.println (getAnswerNumber(radioGroup_2_4));
+        // Q25
+        radioGroup_2_5 = (RadioGroup) findViewById(R.id.radioGroup_2_5);
+        mySurvey.setAnswer(5,getAnswerNumber(radioGroup_2_5));
+        System.out.println (getAnswerNumber(radioGroup_2_5));
+        // Q31
+        radioGroup_3_1 = (RadioGroup) findViewById(R.id.radioGroup_3_1);
+        mySurvey.setAnswer(6,getAnswerNumber(radioGroup_3_1));
+        System.out.println (getAnswerNumber(radioGroup_3_1));
+        // Q32
+        radioGroup_3_2 = (RadioGroup) findViewById(R.id.radioGroup_3_2);
+        mySurvey.setAnswer(7,getAnswerNumber(radioGroup_3_2));
+        System.out.println (getAnswerNumber(radioGroup_3_2));
+        // Q33
+        radioGroup_3_3 = (RadioGroup) findViewById(R.id.radioGroup_3_3);
+        mySurvey.setAnswer(8,getAnswerNumber(radioGroup_3_3));
+        System.out.println (getAnswerNumber(radioGroup_3_3));
+        // Q41
+        radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
+        mySurvey.setAnswer(9,getAnswerNumber(radioGroup_4_1));
+        System.out.println (getAnswerNumber(radioGroup_4_1));
+        // Q42
+        radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+        mySurvey.setAnswer(10,getAnswerNumber(radioGroup_4_2));
+        System.out.println (getAnswerNumber(radioGroup_4_2));
+        // Q43
+        radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+        mySurvey.setAnswer(11,getAnswerNumber(radioGroup_4_3));
+        System.out.println (getAnswerNumber(radioGroup_4_3));
+        // Q44
+        radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+        mySurvey.setAnswer(12,getAnswerNumber(radioGroup_4_4));
+        System.out.println (getAnswerNumber(radioGroup_4_4));
+        // Q45
+        radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+        mySurvey.setAnswer(13,getAnswerNumber(radioGroup_4_5));
+        System.out.println (getAnswerNumber(radioGroup_4_5));
+        // Q46
+        radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+        mySurvey.setAnswer(14,getAnswerNumber(radioGroup_4_6));
+        System.out.println (getAnswerNumber(radioGroup_4_6));
+        // Q47
+        radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+        mySurvey.setAnswer(15,getAnswerNumber(radioGroup_4_7));
+        System.out.println (getAnswerNumber(radioGroup_4_7));
 
         return 0;
     }
