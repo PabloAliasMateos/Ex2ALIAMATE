@@ -55,37 +55,43 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SurveyActivity extends AppCompatActivity {
+public class SurveyActivity extends AppCompatActivity { // without extends Fragment, it would be just a void java class (heritance)
 
-    public static final int REQUEST_CAMERA = 10;                 // without extends Fragment, it would be just a void java class
+    // Request permissions codes
+
+    public static final int REQUEST_CAMERA = 10;
     public static final int IMAGE_PERMISSION_REQUEST_CODE = 1;
     public static final int SURVEY_PERMISSION_REQUEST_CODE = 2;
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
 
-    final String TAG = "States";
+    // Views
 
     private TextView textView_date;
     private TextView textView_startingTime;
     private TextView textView_tastingTime;
     private TextView textView_location;
     private TextView textView_imageName;
+    private ImageView imageView_survey_picture;                  // Now all the methods can access to this View
+    private ImageButton imageButton_clock;
+
+    // General
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-
-    private ImageView imageView_survey_picture;                  // Now all the methods can access to this View
-    private ImageButton imageButton_clock;
     private String storagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download"; // getExternalStorageDirectory does not refer to SD card! it refers to the root of the internal storage outside the app
     private Uri imageURI;                                        // Uri of the last captured image
     private String imageName = "";
     private File directory;
     private File imageFile;
     Timer T;
-    private int timerState = 0;
+    private int timerState = 0;                                  // To add start stop functionality to clock butto
     private int clockButton_animationState = 0;
     private int seconds_counter = 0;
     private int minutes_counter = 0;
+    final String TAG = "States";
+    private int FirstOnCreateCall = 1;                          // When change from portrait to land scape => activity lifecycle is carried out completely => only when
+                                                                // onCreate is call for the first time it is necessary to initialize the values (for example if user rotates the mobile in the middle of the survey)
 
     // ========================================================================================================================================
     // LIFE-CYCLE METHODS
@@ -100,7 +106,13 @@ public class SurveyActivity extends AppCompatActivity {
 
         //1- VALUES INITIALIZATION
 
-        dataInitialization();
+        /*
+        if (savedInstanceState != null) {    // The first time is necessary to initialize the values
+
+            FirstOnCreateCall = 0;
+        }*/
+
+        dataInitialization(savedInstanceState);  // savedInstanceState == null => first onCreate call | savedInstanceState != null => recover info from the previous state when user changes the orientation
 
         //2- LOCATION
 
@@ -151,19 +163,33 @@ public class SurveyActivity extends AppCompatActivity {
 
         //3- TIMER to count tasting time
 
-        // animation to make blik chronometer button. It will be stopped once clock button is pressed
 
+        // animation to make blik chronometer button. It will be stopped once clock button is pressed
         final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
         animation.setDuration(700); // duration - half a second
         animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
         animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
         animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
         imageButton_clock = (ImageButton) findViewById(R.id.imageButton_clock);
-        imageButton_clock.startAnimation(animation);
-        clockButton_animationState = 1;
 
-        startTimer_tastingTime();
-        timerState = 1;
+
+        if (savedInstanceState == null) { // first onCreate call => tasting time timer starts automatically
+
+            imageButton_clock.startAnimation(animation);
+            startTimer_tastingTime();
+            clockButton_animationState = 1;
+            timerState = 1;
+
+        }
+        else {  // change orientation
+
+            if (clockButton_animationState == 1 ) { // To continue temporizing when user change the orientation if previously user was temporizing
+                imageButton_clock.startAnimation(animation);
+                startTimer_tastingTime();
+            }
+
+        }
+
 
         //4- CAMERA BUTTON: Calling camera from fragment
         findViewById(R.id.imageButton_camera).setOnClickListener(new View.OnClickListener() {
@@ -307,6 +333,7 @@ public class SurveyActivity extends AppCompatActivity {
         T.cancel();     // Release timer
 
         Log.d(TAG, "MainActivity: onDestroy()");
+        Log.d(TAG, String.valueOf(FirstOnCreateCall));
     }
 
 
@@ -314,7 +341,9 @@ public class SurveyActivity extends AppCompatActivity {
     // OVERRIDE METHODS
     // ========================================================================================================================================
 
-    // Method to catch the result of an activity called with onActivityResult
+    /**
+     * Method to catch the result of an activity called with onActivityResult
+     */
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -340,14 +369,9 @@ public class SurveyActivity extends AppCompatActivity {
 
     } // end onActivityResult
 
-
     /**
      * Method to handle run-time permissions
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
      */
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -397,6 +421,40 @@ public class SurveyActivity extends AppCompatActivity {
 
         } // end switch
 
+    }
+
+    /**
+     * Method to save data and do not lose it when changing from portrait to land scape
+     */
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        /**
+        savedInstanceState.putBoolean("MyBoolean", true);
+        savedInstanceState.putDouble("myDouble", 1.9);
+        savedInstanceState.putInt("MyInt", 1);*/
+
+        textView_imageName = (TextView) findViewById(R.id.textView_value_imgGalleryName);
+        textView_date = (TextView) findViewById(R.id.textView_value_date);
+        textView_startingTime = (TextView) findViewById(R.id.textView_value_starting_time);
+        textView_tastingTime = (TextView) findViewById(R.id.textView_value_tasting_time);
+        textView_location = (TextView) findViewById(R.id.textView_value_location);
+
+        savedInstanceState.putString("imageName", (String) textView_imageName.getText());
+        savedInstanceState.putString("date", (String) textView_date.getText());
+        savedInstanceState.putString("startingTime", (String) textView_startingTime.getText());
+        savedInstanceState.putString("tastingTime", (String) textView_tastingTime.getText());
+        savedInstanceState.putString("location", (String) textView_location.getText());
+        savedInstanceState.putInt("minutes_counter",minutes_counter);
+        savedInstanceState.putInt("seconds_counter",seconds_counter);
+        savedInstanceState.putInt("clockButton_animationState",clockButton_animationState);
+        savedInstanceState.putInt("timer_state",timerState);
+
+        // etc.
     }
 
     // ========================================================================================================================================
@@ -466,24 +524,74 @@ public class SurveyActivity extends AppCompatActivity {
      *  To initialize values
      *
      */
-    private void dataInitialization() {
+    private void dataInitialization(Bundle savedInstanceState) {
 
         // DATE
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        String date = sdf.format(new Date());
-        textView_date =  (TextView) findViewById(R.id.textView_value_date);
-        textView_date.setText(date);
+        if (savedInstanceState == null) {    // The first that onCreate is called, savedInstanceState parameter received by onCreate is null (nothing to save)
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            String date = sdf.format(new Date());
+            textView_date =  (TextView) findViewById(R.id.textView_value_date);
+            textView_date.setText(date);
+        }
+        else {
+
+            textView_date =  (TextView) findViewById(R.id.textView_value_date);
+            textView_date.setText(savedInstanceState.getString("date"));
+        }
 
         // STARTING TIME
-        sdf = new SimpleDateFormat("HH:mm:ss");
-        String startingTime = sdf.format(new Date());
-        textView_startingTime =  (TextView) findViewById(R.id.textView_value_starting_time);
-        textView_startingTime.setText(startingTime);
+        if (savedInstanceState == null) {    // The first that onCreate is called, savedInstanceState parameter received by onCreate is null (nothing to save)
+
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            String startingTime = sdf.format(new Date());
+            textView_startingTime =  (TextView) findViewById(R.id.textView_value_starting_time);
+            textView_startingTime.setText(startingTime);
+        }
+        else {
+
+            textView_startingTime =  (TextView) findViewById(R.id.textView_value_starting_time);
+            textView_startingTime.setText(savedInstanceState.getString("startingTime"));
+        }
 
         // TASTING TIME
-        String tastingTime = "00:00";
-        textView_tastingTime =  (TextView) findViewById(R.id.textView_value_tasting_time);
-        textView_tastingTime.setText(tastingTime);
+        if (savedInstanceState == null) {    // The first that onCreate is called, savedInstanceState parameter received by onCreate is null (nothing to save)
+
+            String tastingTime = "00:00";
+            textView_tastingTime =  (TextView) findViewById(R.id.textView_value_tasting_time);
+            textView_tastingTime.setText(tastingTime);
+        }
+        else {
+
+            textView_tastingTime =  (TextView) findViewById(R.id.textView_value_tasting_time);
+            textView_tastingTime.setText(savedInstanceState.getString("tastingTime"));
+        }
+
+        // IMAGE NAME
+
+        if (savedInstanceState != null) {
+
+            textView_imageName =  (TextView) findViewById(R.id.textView_value_imgGalleryName);
+            textView_imageName.setText(savedInstanceState.getString("imageName"));
+        }
+
+        // LOCATION
+
+        if (savedInstanceState != null) {
+
+            textView_location =  (TextView) findViewById(R.id.textView_value_location);
+            textView_location.setText(savedInstanceState.getString("location"));
+        }
+
+        // TIMER VALUES
+
+        if (savedInstanceState != null) {
+
+            minutes_counter = savedInstanceState.getInt("minutes_counter");
+            seconds_counter = savedInstanceState.getInt("seconds_counter");
+            timerState = savedInstanceState.getInt("timerState");
+            clockButton_animationState = savedInstanceState.getInt("clockButton_animationState");
+        }
 
     }
 
@@ -493,6 +601,7 @@ public class SurveyActivity extends AppCompatActivity {
      */
 
     private void startTimer_tastingTime() {
+
         T=new Timer();
         T.scheduleAtFixedRate(new TimerTask() {
             @Override
