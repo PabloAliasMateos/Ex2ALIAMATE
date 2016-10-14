@@ -35,5 +35,6 @@
 
     <item name="labels" type="color">#FFFFFF</item>
     <item name="values" type="color">#808080</item>
+    <item name="header" type="color">#444</item>
 
 </resources>

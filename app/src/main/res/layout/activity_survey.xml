@@ -16,7 +16,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#444"
+        android:background="@color/header"
         >
 
         <!--BUTTONS-->
@@ -31,7 +31,8 @@
             android:adjustViewBounds="true"
 
             android:layout_alignParentTop="true"
-            android:layout_marginTop="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/imageButton_camera" />
         <!--Button to stop tasting time-->
         <ImageButton
@@ -41,6 +42,8 @@
             app:srcCompat="@drawable/clock"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
 
             android:layout_below="@+id/imageButton_camera"
             android:id="@+id/imageButton_clock" />
@@ -52,6 +55,9 @@
             app:srcCompat="@drawable/save"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
 
             android:layout_below="@+id/imageButton_clock"
             android:id="@+id/imageButton_save" />
@@ -61,11 +67,14 @@
         <!--To show the image taken-->
         <ImageView
             android:layout_width="70dp"
-            android:layout_height="100dp"
+            android:layout_height="match_parent"
             app:srcCompat="@android:drawable/btn_dialog"
             android:id="@+id/imageView_survey_picture"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:layout_toRightOf="@+id/imageButton_camera"
+            android:layout_alignTop="@+id/imageButton_camera"
+            android:layout_alignBottom="@+id/imageButton_save"
             android:layout_marginLeft="4dp"
             android:layout_marginStart="4dp"
             />
@@ -81,7 +90,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="5dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="25dp"
             android:textColor="@color/labels"
             android:textStyle="normal|bold"
             android:textSize="10sp"
@@ -154,7 +163,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="2dp"
             android:layout_marginStart="2dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="25dp"
             android:textColor="@color/values"
             android:textSize="12sp"
             android:id="@+id/textView_value_date" />
@@ -217,7 +226,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginLeft="15dp">
 
         <!-- ScrollView only can have one direct child => LinearLayout inside LinearLayout -->
 
