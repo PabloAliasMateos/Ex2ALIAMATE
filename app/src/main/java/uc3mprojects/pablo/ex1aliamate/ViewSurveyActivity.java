@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.provider.Settings;
@@ -34,12 +35,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
 public class ViewSurveyActivity extends AppCompatActivity {
 
 
     final String TAG = "States_lifeCycle";
-
     private String storagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
+    private int title_value_space = 400;
 
     // ========================================================================================================================================
     // LIFE-CYCLE METHODS
@@ -190,7 +193,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
      * To recover the information contented into DB string and create an associated SurveyInformation object
      */
 
-    private SurveyInformation recoverSurveyInformation (String surveyInfoDBFormat) {
+    public SurveyInformation recoverSurveyInformation (String surveyInfoDBFormat) {
 
         SurveyInformation surveyObject = new SurveyInformation();  // To recover all the fields
 
@@ -440,27 +443,26 @@ public class ViewSurveyActivity extends AppCompatActivity {
             params_tv_user.addRule(RelativeLayout.ALIGN_TOP, ID_image);
             params_tv_user.setMargins(10,0,0,0);  // int left, int top, int right, int bottom
 
-            params_tv_image_title = new RelativeLayout.LayoutParams(300,RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv_image_title = new RelativeLayout.LayoutParams(title_value_space,RelativeLayout.LayoutParams.WRAP_CONTENT);
             params_tv_image_title.addRule(RelativeLayout.RIGHT_OF,ID_image);
             params_tv_image_title.addRule(RelativeLayout.ALIGN_BOTTOM, ID_image);
             params_tv_image_title.addRule(RelativeLayout.ALIGN_LEFT,ID_tv_user);
 
-            params_tv_location_title = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv_location_title = new RelativeLayout.LayoutParams(title_value_space,RelativeLayout.LayoutParams.WRAP_CONTENT);
             params_tv_location_title.addRule(RelativeLayout.ABOVE,ID_tv_image_title);
             params_tv_location_title.addRule(RelativeLayout.ALIGN_LEFT,ID_tv_image_title);
 
-            params_tv_tastingTime_title = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv_tastingTime_title = new RelativeLayout.LayoutParams(title_value_space,RelativeLayout.LayoutParams.WRAP_CONTENT);
             params_tv_tastingTime_title.addRule(RelativeLayout.ABOVE,ID_tv_location_title);
             params_tv_tastingTime_title.addRule(RelativeLayout.ALIGN_LEFT,ID_tv_location_title);
 
-            params_tv_startingTime_title = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv_startingTime_title = new RelativeLayout.LayoutParams(title_value_space,RelativeLayout.LayoutParams.WRAP_CONTENT);
             params_tv_startingTime_title.addRule(RelativeLayout.ABOVE,ID_tv_tastingTime_title);
             params_tv_startingTime_title.addRule(RelativeLayout.ALIGN_LEFT,ID_tv_tastingTime_title);
 
-            params_tv_date_title = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+            params_tv_date_title = new RelativeLayout.LayoutParams(title_value_space,RelativeLayout.LayoutParams.WRAP_CONTENT);
             params_tv_date_title.addRule(RelativeLayout.ABOVE,ID_tv_startingTime_title);
             params_tv_date_title.addRule(RelativeLayout.ALIGN_LEFT,ID_tv_startingTime_title);
-
 
 
             // VALUES
@@ -500,6 +502,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
             tv_tastingTime_title.setText (R.string.label_tastingTime);
             tv_location_title.setText(R.string.label_location);
             tv_user.setText(txtContent.get(i*2));
+            tv_user.setTypeface(Typeface.DEFAULT_BOLD);
 
             // Create an object with the information
             currentSurvey = recoverSurveyInformation (txtContent.get(i*2 +1));
@@ -516,10 +519,17 @@ public class ViewSurveyActivity extends AppCompatActivity {
             rl.addView(btn, params_btn);
             // Connecting activity to the button
             btn = ((ImageButton) rl.findViewById(ID_btn));
+            final TextView finalTv_user = tv_user;
             btn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    Toast.makeText(view.getContext(), "ACTIVITY TO EDIT SURVEYS CREATED", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(view.getContext(), "ACTIVITY TO EDIT SURVEYS CREATED", Toast.LENGTH_LONG).show();
+                   // Bundle to pass variables among activities
+                    Bundle bundle = new Bundle();
+                    String user_ID;
+                    user_ID = (String) finalTv_user.getText();
+                    bundle.putString("USER_ID",user_ID);
                     Intent intent = new Intent(ViewSurveyActivity.this, EditSurveyActivity.class);  // To bind the ViewSurveyActivity activity with EditSurveyActivity activity
+                    intent.putExtras(bundle);
                     startActivity(intent);
                 }
             });
@@ -543,7 +553,8 @@ public class ViewSurveyActivity extends AppCompatActivity {
             rl.addView(tv_location,params_tv_location);
             rl.addView(tv_image,params_tv_image);
 
-            rl.setBackgroundColor(Color.rgb(255,178,102));  // red, green, blue
+            rl.setBackgroundColor(Color.rgb(224,224,224));  // red, green, blue
+            //rl.setBackgroundColor(getResources().getColor(R.color.header));  // red, green, blue
             // Add relative layout to linear layout (linear layout can have several direct childs)
             ll.addView(rl,params_ll);
         }
