@@ -2,40 +2,34 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="uc3mprojects.pablo.ex1aliamate">
 
-	<!--MANIFEST DECLARATIONS-->
-    <!--It is necessary to provide specific permissions to use the built-in hardware, in this case the camera and GPS-->
-    <uses-feature android:name="android.hardware.camera2"></uses-feature>
+    <!-- MANIFEST DECLARATIONS -->
+    <!-- It is necessary to provide specific permissions to use the built-in hardware, in this case the camera and GPS -->
+    <uses-feature android:name="android.hardware.camera2" />
     <uses-feature android:name="android.hardware.location.gps" />
-    <!--Permission to access external storage-->
-    <!--Gallery and memory folders-->
+    <!-- Permission to access external storage -->
+    <!-- Gallery and memory folders -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <!--Location-->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-	
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".MainActivity">
-
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".SurveyActivity" />
-        <activity
-            android:name=".ViewSurveyActivity">
-        </activity>
+        <activity android:name=".SurveyActivity" />
+        <activity android:name=".ViewSurveyActivity"></activity>
+        <activity android:name=".EditSurveyActivity"></activity>
     </application>
-
 
 </manifest>
