@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -739,7 +740,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
        if (location != null) {  // Sometimes it can return null location, making crash the app if it is not handled correctly
            textView_location = (TextView) findViewById(R.id.textView_value_location);
-           textView_location.setText(String.format("%.4f", location.getLatitude()) + " - " + String.format("%.4f", location.getAltitude()));
+           textView_location.setText(String.format(Locale.ROOT,"%.4f", location.getLatitude()) + " - " + String.format(Locale.ROOT,"%.4f", location.getAltitude()));  // Locale.ROOT to force . as separator instead a comma => easier to parse txt file
        }
         else {
 
