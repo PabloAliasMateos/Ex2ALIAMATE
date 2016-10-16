@@ -510,10 +510,16 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
             // Titles
             tv_date_title.setText(R.string.label_date);
+            tv_date_title.setTextSize(11);
             tv_image_title.setText(R.string.label_imgGalleryName);
+            tv_image_title.setTextSize(11);
             tv_startingTime_title.setText(R.string.label_startingTime);
+            tv_startingTime_title.setTextSize(11);
             tv_tastingTime_title.setText (R.string.label_tastingTime);
+            tv_tastingTime_title.setTextSize(11);
             tv_location_title.setText(R.string.label_location);
+            tv_location_title.setTextSize(11);
+
             tv_user.setText(txtContent.get(i*2));
             tv_user.setTypeface(Typeface.DEFAULT_BOLD);
 
@@ -521,10 +527,15 @@ public class ViewSurveyActivity extends AppCompatActivity {
             currentSurvey = recoverSurveyInformation (txtContent.get(i*2 +1));
             // update views content
             tv_date.setText(currentSurvey.getDate());
+            tv_date.setTextSize(11);
             tv_image.setText(currentSurvey.getImage());
+            tv_image.setTextSize(11);
             tv_startingTime.setText(currentSurvey.getStartingTime());
+            tv_startingTime.setTextSize(11);
             tv_tastingTime.setText(currentSurvey.getTastingTime());
+            tv_tastingTime.setTextSize(11);
             tv_location.setText(currentSurvey.getLocation());
+            tv_location.setTextSize(11);
 
             //5- Loading views into relative layout
 

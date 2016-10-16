@@ -894,11 +894,12 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                 Toast.makeText(this, "Survey incomplete. Please, complete the survey before save it.", Toast.LENGTH_LONG).show();
             }
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
-    }
+    } // end save_survey
 
     /**
      *
@@ -907,10 +908,9 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     private void checkSurveyComplete (SurveyInformation mySurvey) {
 
-        int surveyStatus = 0;
+        mySurvey.setSurveyStatus (1) ;
 
         //1- Check if all the fields are filled. If not, highlight those which are not completed
-
 
         // Header values
 
