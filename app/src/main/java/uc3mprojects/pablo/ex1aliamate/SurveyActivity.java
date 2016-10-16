@@ -86,6 +86,14 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private ImageView imageView_survey_picture;                  // Now all the methods can access to this View
     private ImageButton imageButton_clock;
 
+
+    private TextView textView_date_label;
+    private TextView textView_startingTime_label;
+    private TextView textView_tastingTime_label;
+    private TextView textView_location_label;
+    private TextView textView_imageName_label;
+
+
     // General
 
     private LocationManager locationManager;
@@ -101,6 +109,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int seconds_counter = 0;
     private int minutes_counter = 0;
     private int current_index_value = 0;                       // To detect if the current survey has been saved before and store index value
+    private int tried_save = 0;
 
     // Report tags
 
@@ -343,6 +352,13 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (tried_save == 1) { // If user has tried to save the survey previously with error, visual indicators should appear again at rotate screen time
+            SurveyInformation mySurvey = new SurveyInformation();
+            readSurveyValues(mySurvey);
+            checkSurveyComplete (mySurvey);
+        }
+
         Log.d(TAG, "MainActivity: onResume()");
     }
 
@@ -539,6 +555,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         savedInstanceState.putInt("clockButton_animationState",clockButton_animationState);
         savedInstanceState.putInt("timer_state",timerState);
         savedInstanceState.putInt("current_index_value",current_index_value);
+        savedInstanceState.putInt("tried_save",tried_save);
 
         // etc.
     }
@@ -698,6 +715,19 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             current_index_value = savedInstanceState.getInt("current_index_value");
         }
 
+        // VISUAL INDICATORS
+
+        if (savedInstanceState != null) {
+
+            tried_save = savedInstanceState.getInt("tried_save");
+            if (tried_save == 1) { // If user has tried to save the survey previously with error, visual indicators should appear again at rotate screen time
+                SurveyInformation mySurvey = new SurveyInformation();
+                readSurveyValues(mySurvey);
+                checkSurveyComplete (mySurvey);
+            }
+        }
+
+
     }
 
     /**
@@ -758,6 +788,10 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
      */
 
     private void saveSurvey() {
+
+        // 0- User has tried to save at least once
+
+        tried_save = 1;
 
         //1- Save survey information into txt file
 
@@ -868,13 +902,14 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     /**
      *
-     * To show the location value in the proper textView
+     * Set surveyStatus attribute of mySurvey object in case that survey is completed, otherwise => visual idicators
      */
-    private int readSurveyValues(SurveyInformation mySurvey) {
 
-        mySurvey.setSurveyStatus (1) ;      // only if all the fields are completed, this value will keep constant
+    private void checkSurveyComplete (SurveyInformation mySurvey) {
 
-     //1- Check if all the fields are filled
+        int surveyStatus = 0;
+
+        //1- Check if all the fields are filled. If not, highlight those which are not completed
 
 
         // Header values
@@ -885,70 +920,116 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         textView_tastingTime = (TextView) findViewById(R.id.textView_value_tasting_time);
         textView_location = (TextView) findViewById(R.id.textView_value_location);
 
+        textView_imageName_label = (TextView) findViewById(R.id.textView_label_imgGalleryName);
+        textView_date_label = (TextView) findViewById(R.id.textView_label_date);
+        textView_startingTime_label = (TextView) findViewById(R.id.textView_label_starting_time);
+        textView_tastingTime_label = (TextView) findViewById(R.id.textView_label_tasting_time);
+        textView_location_label = (TextView) findViewById(R.id.textView_label_location);
 
-        if (textView_imageName.getText().equals("-") || textView_date.getText().equals("-") || textView_startingTime.getText().equals("-") || textView_tastingTime.getText().equals("-") || textView_location.getText().equals("-")) {
-            mySurvey.setSurveyStatus (0) ;
-            return -1;
-        }
+
+        if (textView_imageName.getText().equals("-")) {mySurvey.setSurveyStatus (0) ;textView_imageName_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_imageName_label.setTextColor(getResources().getColor(R.color.white));}
+
+        if (textView_date.getText().equals("-")) {mySurvey.setSurveyStatus (0) ;textView_date_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_date_label.setTextColor(getResources().getColor(R.color.white));}
+
+        if (textView_startingTime.getText().equals("-")) {mySurvey.setSurveyStatus (0) ;textView_startingTime_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_startingTime_label.setTextColor(getResources().getColor(R.color.white));}
+
+        if (textView_tastingTime.getText().equals("-")) {mySurvey.setSurveyStatus (0) ;textView_tastingTime_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_tastingTime_label.setTextColor(getResources().getColor(R.color.white));}
+
+        if (textView_location.getText().equals("-")) {mySurvey.setSurveyStatus (0) ;textView_location_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_location_label.setTextColor(getResources().getColor(R.color.white));}
 
         // Timer state (user must stop the timer to select a tasting time)
 
-        if (timerState == 1){
-            mySurvey.setSurveyStatus (0) ;
-            return -1;
-        }
+        if (clockButton_animationState == 1){mySurvey.setSurveyStatus (0) ; textView_tastingTime_label.setTextColor(getResources().getColor(R.color.survey_header_incomplete));}
+        else {textView_tastingTime_label.setTextColor(getResources().getColor(R.color.white));}
 
         // Survey values
 
         // Q11
         RadioGroup radioGroup_1_1 = (RadioGroup) findViewById(R.id.radioGroup_1_1);
-        if (radioGroup_1_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_1_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_1_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete)); }
+        else {radioGroup_1_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q21
         RadioGroup radioGroup_2_1 = (RadioGroup) findViewById(R.id.radioGroup_2_1);
-        if (radioGroup_2_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_2_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_2_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_2_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q22
         RadioGroup radioGroup_2_2 = (RadioGroup) findViewById(R.id.radioGroup_2_2);
-        if (radioGroup_2_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_2_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_2_2.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_2_2.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q23
         RadioGroup radioGroup_2_3 = (RadioGroup) findViewById(R.id.radioGroup_2_3);
-        if (radioGroup_2_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_2_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_2_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_2_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q24
         RadioGroup radioGroup_2_4 = (RadioGroup) findViewById(R.id.radioGroup_2_4);
-        if (radioGroup_2_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_2_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_2_4.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_2_4.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q25
         RadioGroup radioGroup_2_5 = (RadioGroup) findViewById(R.id.radioGroup_2_5);
-        if (radioGroup_2_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_2_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_2_5.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_2_5.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q31
         RadioGroup radioGroup_3_1 = (RadioGroup) findViewById(R.id.radioGroup_3_1);
-        if (radioGroup_3_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_3_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_3_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_3_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q32
         RadioGroup radioGroup_3_2 = (RadioGroup) findViewById(R.id.radioGroup_3_2);
-        if (radioGroup_3_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_3_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_3_2.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_3_2.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q33
         RadioGroup radioGroup_3_3 = (RadioGroup) findViewById(R.id.radioGroup_3_3);
-        if (radioGroup_3_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_3_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_3_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_3_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q41
         RadioGroup radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
-        if (radioGroup_4_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q42
         RadioGroup radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
-        if (radioGroup_4_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_2.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_2.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q43
         RadioGroup radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
-        if (radioGroup_4_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q44
         RadioGroup radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
-        if (radioGroup_4_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_4.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_4.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q45
         RadioGroup radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
-        if (radioGroup_4_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_5.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_5.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q46
         RadioGroup radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
-        if (radioGroup_4_6.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_6.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_6.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_6.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
         // Q47
         RadioGroup radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
-        if (radioGroup_4_7.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; return -1; }
+        if (radioGroup_4_7.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_7.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+        else {radioGroup_4_7.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
 
+    }
+
+    /**
+     *
+     * To show the location value in the proper textView
+     */
+    private int readSurveyValues(SurveyInformation mySurvey) {
+
+
+        checkSurveyComplete(mySurvey) ;      // only if all the fields are completed, this value will keep constant
+
+        if (mySurvey.getSurveyStatus() == 0) {return -1;}
+        else
+        {
+
+        RadioGroup radioGroupSurvey;
 
         //2- Fill class attributes
 
@@ -962,73 +1043,73 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         // Survey values
 
         // Q11
-        radioGroup_1_1 = (RadioGroup) findViewById(R.id.radioGroup_1_1);
-        mySurvey.setAnswer(0,getAnswerNumber(radioGroup_1_1));  // index 0 => Q11 (first question). The second parameter returns the radiobutton number selected of the specific radiogroup
-        System.out.println (getAnswerNumber(radioGroup_1_1));
+        radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_1_1);
+        mySurvey.setAnswer(0,getAnswerNumber(radioGroupSurvey));  // index 0 => Q11 (first question). The second parameter returns the radiobutton number selected of the specific radiogroup
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q21
-        radioGroup_2_1 = (RadioGroup) findViewById(R.id.radioGroup_2_1);
-        mySurvey.setAnswer(1,getAnswerNumber(radioGroup_2_1));
-        System.out.println (getAnswerNumber(radioGroup_2_1));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_2_1);
+        mySurvey.setAnswer(1,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q22
-        radioGroup_2_2 = (RadioGroup) findViewById(R.id.radioGroup_2_2);
-        mySurvey.setAnswer(2,getAnswerNumber(radioGroup_2_2));
-        System.out.println (getAnswerNumber(radioGroup_2_2));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_2_2);
+        mySurvey.setAnswer(2,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q23
-        radioGroup_2_3 = (RadioGroup) findViewById(R.id.radioGroup_2_3);
-        mySurvey.setAnswer(3,getAnswerNumber(radioGroup_2_3));
-        System.out.println (getAnswerNumber(radioGroup_2_3));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_2_3);
+        mySurvey.setAnswer(3,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q24
-        radioGroup_2_4 = (RadioGroup) findViewById(R.id.radioGroup_2_4);
-        mySurvey.setAnswer(4,getAnswerNumber(radioGroup_2_4));
-        System.out.println (getAnswerNumber(radioGroup_2_4));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_2_4);
+        mySurvey.setAnswer(4,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q25
-        radioGroup_2_5 = (RadioGroup) findViewById(R.id.radioGroup_2_5);
-        mySurvey.setAnswer(5,getAnswerNumber(radioGroup_2_5));
-        System.out.println (getAnswerNumber(radioGroup_2_5));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_2_5);
+        mySurvey.setAnswer(5,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q31
-        radioGroup_3_1 = (RadioGroup) findViewById(R.id.radioGroup_3_1);
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_3_1);
         EditText editText_agent_ID = (EditText) findViewById(R.id.editText_agent_ID);
         mySurvey.setAgentID(String.valueOf(editText_agent_ID.getText()));
-        mySurvey.setAnswer(6,getAnswerNumber(radioGroup_3_1));
-        System.out.println (getAnswerNumber(radioGroup_3_1));
+        mySurvey.setAnswer(6,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q32
-        radioGroup_3_2 = (RadioGroup) findViewById(R.id.radioGroup_3_2);
-        mySurvey.setAnswer(7,getAnswerNumber(radioGroup_3_2));
-        System.out.println (getAnswerNumber(radioGroup_3_2));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_3_2);
+        mySurvey.setAnswer(7,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q33
-        radioGroup_3_3 = (RadioGroup) findViewById(R.id.radioGroup_3_3);
-        mySurvey.setAnswer(8,getAnswerNumber(radioGroup_3_3));
-        System.out.println (getAnswerNumber(radioGroup_3_3));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_3_3);
+        mySurvey.setAnswer(8,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q41
-        radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
-        mySurvey.setAnswer(9,getAnswerNumber(radioGroup_4_1));
-        System.out.println (getAnswerNumber(radioGroup_4_1));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_1);
+        mySurvey.setAnswer(9,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q42
-        radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
-        mySurvey.setAnswer(10,getAnswerNumber(radioGroup_4_2));
-        System.out.println (getAnswerNumber(radioGroup_4_2));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+        mySurvey.setAnswer(10,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q43
-        radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
-        mySurvey.setAnswer(11,getAnswerNumber(radioGroup_4_3));
-        System.out.println (getAnswerNumber(radioGroup_4_3));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+        mySurvey.setAnswer(11,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q44
-        radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
-        mySurvey.setAnswer(12,getAnswerNumber(radioGroup_4_4));
-        System.out.println (getAnswerNumber(radioGroup_4_4));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+        mySurvey.setAnswer(12,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q45
-        radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
-        mySurvey.setAnswer(13,getAnswerNumber(radioGroup_4_5));
-        System.out.println (getAnswerNumber(radioGroup_4_5));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+        mySurvey.setAnswer(13,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q46
-        radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
-        mySurvey.setAnswer(14,getAnswerNumber(radioGroup_4_6));
-        System.out.println (getAnswerNumber(radioGroup_4_6));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+        mySurvey.setAnswer(14,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
         // Q47
-        radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
-        mySurvey.setAnswer(15,getAnswerNumber(radioGroup_4_7));
-        System.out.println (getAnswerNumber(radioGroup_4_7));
+            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+        mySurvey.setAnswer(15,getAnswerNumber(radioGroupSurvey));
+        System.out.println (getAnswerNumber(radioGroupSurvey));
 
-        return 0;
+        return 0;}
     }
 
     /**

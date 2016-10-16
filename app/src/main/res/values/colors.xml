@@ -37,4 +37,10 @@
     <item name="values" type="color">#808080</item>
     <item name="header" type="color">#444</item>
 
+    <!--Survey Alert-->
+
+    <item name="survey_answer_incomplete" type="color">#FFCCCC</item>
+    <item name="survey_header_incomplete" type="color">#FFCC0000</item>
+
+
 </resources>

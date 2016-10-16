@@ -18,6 +18,7 @@
         android:id="@+id/textView_masterName"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
         android:textSize="10dp"
         />
 
@@ -38,6 +39,7 @@
         android:id="@+id/textView_studentName"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
         android:textSize="10dp"
         />
 
