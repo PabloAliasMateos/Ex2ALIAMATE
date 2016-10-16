@@ -40,6 +40,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -884,6 +885,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         textView_tastingTime = (TextView) findViewById(R.id.textView_value_tasting_time);
         textView_location = (TextView) findViewById(R.id.textView_value_location);
 
+
         if (textView_imageName.getText().equals("-") || textView_date.getText().equals("-") || textView_startingTime.getText().equals("-") || textView_tastingTime.getText().equals("-") || textView_location.getText().equals("-")) {
             mySurvey.setSurveyStatus (0) ;
             return -1;
@@ -985,6 +987,8 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         System.out.println (getAnswerNumber(radioGroup_2_5));
         // Q31
         radioGroup_3_1 = (RadioGroup) findViewById(R.id.radioGroup_3_1);
+        EditText editText_agent_ID = (EditText) findViewById(R.id.editText_agent_ID);
+        mySurvey.setAgentID(String.valueOf(editText_agent_ID.getText()));
         mySurvey.setAnswer(6,getAnswerNumber(radioGroup_3_1));
         System.out.println (getAnswerNumber(radioGroup_3_1));
         // Q32

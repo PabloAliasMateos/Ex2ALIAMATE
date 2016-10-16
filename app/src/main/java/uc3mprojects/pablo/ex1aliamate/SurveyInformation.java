@@ -13,6 +13,7 @@ public class SurveyInformation {
     private String tastingTime;
     private String location;
     private String image;
+    private String agent_ID;
     /*
     private char Q11;  // 0
     private char Q21;  // 1
@@ -53,6 +54,7 @@ public class SurveyInformation {
     public void setTastingTime (String tastingTime) {this.tastingTime = tastingTime;}
     public void setLocation (String location) {this.location = location;}
     public void setImage (String image) {this.image = image;}
+    public void setAgentID (String agent_ID) {this.agent_ID = agent_ID;}
     public void setAnswer (int index, char answer) {this.answers[index] = answer;}
 
     // Get
@@ -62,6 +64,7 @@ public class SurveyInformation {
     public String getTastingTime () {return this.tastingTime;}
     public String getLocation () {return this.location;}
     public String getImage () {return this.image;}
+    public String getAgentID () {return this.agent_ID;}
     public char getAnswer (int index) {return this.answers[index];}
     public char [] getAnswers () {return this.answers;}
 
@@ -69,7 +72,7 @@ public class SurveyInformation {
     public String getSurveyDBFormat () {
         String SurveyDBFormat;
         SurveyDBFormat = "{"+"\"Q11\""+":"+"\""+getAnswer(0)+"\"" + "," + "\"Q21\""+":"+"\""+getAnswer(1)+"\"" + "," + "\"Q22\""+":"+"\""+getAnswer(2)+"\"" + "," + "\"Q23\""+":"+"\""+getAnswer(3)+"\"" + "," + "\"Q24\""+":"+"\""+getAnswer(4)+"\"" + "," +
-                "\"Q25\""+":"+"\""+getAnswer(5)+"\"" + "," + "\"Q31\""+":"+"\""+getAnswer(6)+"\"" + "," + "\"Q32\""+":"+"\""+getAnswer(7)+"\"" + "," + "\"Q33\""+":"+"\""+getAnswer(8)+"\"" + "," + "\"Q41\""+":"+"\""+getAnswer(9)+"\"" + "," +
+                "\"Q25\""+":"+"\""+getAnswer(5)+"\"" + "," + "\"Q31\""+":"+"\""+getAgentID()+"\"" + "," + "\"Q32\""+":"+"\""+getAnswer(7)+"\"" + "," + "\"Q33\""+":"+"\""+getAnswer(8)+"\"" + "," + "\"Q41\""+":"+"\""+getAnswer(9)+"\"" + "," +
                 "\"Q42\""+":"+"\""+getAnswer(10)+"\"" + "," + "\"Q43\""+":"+"\""+getAnswer(11)+"\"" + "," + "\"Q44\""+":"+"\""+getAnswer(12)+"\"" + "," + "\"Q45\""+":"+"\""+getAnswer(13)+"\"" + "," + "\"Q46\""+":"+"\""+getAnswer(14)+"\"" + "," +
                 "\"Q47\""+":"+"\""+getAnswer(15)+"\"" + "," + "\"Photo\""+":"+"\""+getImage ()+"\""+","+"\"Starting Time\""+":"+"\""+getDate ()+" "+getStartingTime ()+"\""+","+"\"Tasting Time\""+":"+"\""+getTastingTime ()+"\""+","+"\"Location\""+":"+"\""+getLocation ()+"\""+"}";
         return SurveyDBFormat;

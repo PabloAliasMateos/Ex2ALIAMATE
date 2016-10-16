@@ -20,7 +20,7 @@
     <item name="darkred" type="color">#FFCC0000</item>
     <item name="darkred2" type="color">#854</item>
     <item name="black" type="color">#000000</item>
-    <item name="grey" type="color">#808080</item>
+    <item name="grey" type="color">#E0E0E0</item>
     <item name="white" type="color">#FFFFFF</item>
 
 <!--App color configuration-->

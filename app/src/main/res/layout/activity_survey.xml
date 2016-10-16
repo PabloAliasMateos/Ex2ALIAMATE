@@ -696,6 +696,18 @@
 
             </RadioGroup>
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="Agent ID"
+                android:textSize="12sp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:textColor="@color/answer"
+                android:backgroundTint="@color/answer"
+                android:id="@+id/editText_agent_ID" />
+
 
             <!-- Question 2
             ======================================================================================== -->

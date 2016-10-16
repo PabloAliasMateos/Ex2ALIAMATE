@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -284,6 +285,8 @@ public class EditSurveyActivity extends AppCompatActivity {
         surveyObject.setLocation(surveyInformation.get("Location"));
         // Image
         surveyObject.setImage(surveyInformation.get("Photo"));
+        // Agent ID
+        surveyObject.setAgentID(surveyInformation.get("Q31"));
 
 
         // SURVEY INFO
@@ -294,7 +297,7 @@ public class EditSurveyActivity extends AppCompatActivity {
         surveyObject.setAnswer(3,surveyInformation.get("Q23").charAt(0));
         surveyObject.setAnswer(4,surveyInformation.get("Q24").charAt(0));
         surveyObject.setAnswer(5,surveyInformation.get("Q25").charAt(0));
-        surveyObject.setAnswer(6,surveyInformation.get("Q31").charAt(0));
+        surveyObject.setAnswer(6,'1');                                      // always is checked
         surveyObject.setAnswer(7,surveyInformation.get("Q32").charAt(0));
         surveyObject.setAnswer(8,surveyInformation.get("Q33").charAt(0));
         surveyObject.setAnswer(9,surveyInformation.get("Q41").charAt(0));
@@ -477,7 +480,11 @@ public class EditSurveyActivity extends AppCompatActivity {
 
                         if (survey_values[i] == '1') {
                             radioButton_survey = (RadioButton) findViewById(R.id.radioButton_3_1_1);
-                            radioButton_survey.setChecked(true);}
+                            radioButton_survey.setChecked(true);
+                            EditText editText_agent_ID = (EditText) findViewById(R.id.editText_agent_ID);
+                            editText_agent_ID.setText(currentSurvey.getAgentID());
+
+                        }
                         break;
 
                     case 7: //Q32
@@ -837,6 +844,8 @@ public class EditSurveyActivity extends AppCompatActivity {
         System.out.println (getAnswerNumber(radioGroup_survey));
         // Q31
         radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_3_1);
+        EditText editText_agent_ID = (EditText) findViewById(R.id.editText_agent_ID);
+        mySurvey.setAgentID(String.valueOf(editText_agent_ID.getText()));
         mySurvey.setAnswer(6,getAnswerNumber(radioGroup_survey));
         System.out.println (getAnswerNumber(radioGroup_survey));
         // Q32

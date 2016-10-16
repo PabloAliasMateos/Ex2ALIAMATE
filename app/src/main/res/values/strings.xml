@@ -106,7 +106,7 @@
     <string name="group_4">Post-tasting interview</string>
 
     <!-- Question 4.1-->
-    <string name="question_4_1">Agent ID:</string>
+    <string name="question_4_1">Age group?:</string>
     <!-- Options -->
     <string name="answer_4_1_1">25</string>
     <string name="answer_4_1_2">25-40</string>

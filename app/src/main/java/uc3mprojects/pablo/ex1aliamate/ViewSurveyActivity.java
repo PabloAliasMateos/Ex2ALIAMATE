@@ -6,8 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
@@ -492,9 +495,18 @@ public class ViewSurveyActivity extends AppCompatActivity {
             //4- Updating views following the information stored inside txt file
 
             // Button: Loading resource eye (imageButton)
+            /*
+            ShapeDrawable shapedrawable = new ShapeDrawable();
+            shapedrawable.setShape(new RectShape());
+            shapedrawable.getPaint().setColor(Color.BLACK);
+            shapedrawable.getPaint().setStrokeWidth(10f);
+            shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+            btn.setBackground(shapedrawable);
+            */
             btn.setImageResource(R.drawable.eye);
             btn.setAdjustViewBounds(true);
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+            btn.setBackgroundColor(getResources().getColor(R.color.grey));
 
             // Titles
             tv_date_title.setText(R.string.label_date);
@@ -554,8 +566,18 @@ public class ViewSurveyActivity extends AppCompatActivity {
             rl.addView(tv_location,params_tv_location);
             rl.addView(tv_image,params_tv_image);
 
-            rl.setBackgroundColor(Color.rgb(224,224,224));  // red, green, blue
-            //rl.setBackgroundColor(getResources().getColor(R.color.header));  // red, green, blue
+            //rl.setBackgroundColor(Color.rgb(224,224,224));  // red, green, blue
+            rl.setBackgroundColor(getResources().getColor(R.color.grey));
+
+            /*
+            ShapeDrawable shapedrawable = new ShapeDrawable();
+            shapedrawable.setShape(new RectShape());
+            shapedrawable.getPaint().setColor(Color.BLACK);
+            shapedrawable.getPaint().setStrokeWidth(10f);
+            shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+            rl.setBackground(shapedrawable);
+            */
+
             // Add relative layout to linear layout (linear layout can have several direct childs)
             ll.addView(rl,params_ll);
         }
