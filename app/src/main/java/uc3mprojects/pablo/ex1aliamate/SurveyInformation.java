@@ -63,6 +63,7 @@ public class SurveyInformation {
     public String getLocation () {return this.location;}
     public String getImage () {return this.image;}
     public char getAnswer (int index) {return this.answers[index];}
+    public char [] getAnswers () {return this.answers;}
 
     // General
     public String getSurveyDBFormat () {

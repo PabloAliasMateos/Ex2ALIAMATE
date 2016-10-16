@@ -25,7 +25,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
 
-            app:srcCompat="@drawable/camera_image"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
 
@@ -39,7 +38,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
 
-            app:srcCompat="@drawable/clock"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:layout_marginLeft="5dp"

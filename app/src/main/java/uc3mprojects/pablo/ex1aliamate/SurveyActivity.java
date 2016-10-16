@@ -751,7 +751,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     }
 
-    /**
+     /**
      *
      * To save the survey
      */

@@ -429,6 +429,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
             params_btn.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             params_btn.setMargins(0,20,20,0);
 
+
             // IMAGE
 
             params_image = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
