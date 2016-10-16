@@ -126,10 +126,10 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         super.onCreate(savedInstanceState);
 
         //Remove title bar (valid when activity is created by extends from activity, not AppCompatActivity)
-       // this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         //Remove notification bar
-       // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_survey);
 
@@ -268,12 +268,13 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                 String message;
                 String tittle;
 
-                if (current_index_value == 0)  {     // First time that save button is pressed
+                if (current_index_value == 0) {     // First time that save button is pressed
                     message = "Are you sure you want to save the current survey?";
-                    tittle = "SAVE SURVEY";}
-                else {                               // To make some modifications (for example, wron answer)
+                    tittle = "SAVE SURVEY";
+                } else {                               // To make some modifications (for example, wron answer)
                     message = "Are you sure you want to replace the stored survey?";
-                    tittle = "REPLACE SURVEY";}
+                    tittle = "REPLACE SURVEY";
+                }
 
                 // DIALOG TO SAVE OR NOT
 
@@ -356,7 +357,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         if (tried_save == 1) { // If user has tried to save the survey previously with error, visual indicators should appear again at rotate screen time
             SurveyInformation mySurvey = new SurveyInformation();
             readSurveyValues(mySurvey);
-            checkSurveyComplete (mySurvey);
+            checkSurveyComplete(mySurvey);
         }
 
         Log.d(TAG, "MainActivity: onResume()");
@@ -503,22 +504,37 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                 else
                     Toast.makeText(this, "PERMISSION DENIED: Can not save the survey. ", Toast.LENGTH_LONG).show();
                 return;
-/*
+
             case LOCATION_PERMISSION_REQUEST_CODE:
 
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "PERMISSION DENIED: Can not access GPS ", Toast.LENGTH_LONG ).show();
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // To show the last known location until the new value is gotten
+                    String locationProvider = LocationManager.GPS_PROVIDER;
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
-                // To show the last known location until the new value is gotten
-                String locationProvider = LocationManager.GPS_PROVIDER;
-                Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-                showNewLocation(lastKnownLocation);
-                locationManager.requestLocationUpdates("gps", 5000, 5, locationListener); // The location will be get from gps, it will be checked every 5 seconds or when user moves 5 meters
+                    Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+                    showNewLocation(lastKnownLocation);
+                    // To start checking the location
+                    locationManager.requestLocationUpdates("gps", 5000, 5, locationListener);
+                }
+
+                else {
+
+                    Toast.makeText(this, "PERMISSION DENIED: Can not access GPS.", Toast.LENGTH_LONG ).show();
+                    finish(); // The app requires GPS
+                }
+                    // To show the last known location until the new value is gotten
+
                 return;
-*/
+
 
         } // end switch
 
@@ -888,6 +904,9 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                     survey_info_writer.close();
                     current_index_value = 1;
                 }
+
+                Toast.makeText(this, "Survey saved successfully.", Toast.LENGTH_LONG).show();
+
             } // end if
             else {
 
