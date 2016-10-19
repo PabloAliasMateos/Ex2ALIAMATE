@@ -459,11 +459,14 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         showImageCaptured(imageName);
                     } else {
-                        //permission failed, request
+                        //permission failed, request (run time permissions)
                         String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
                         requestPermissions(permissionRequest, IMAGE_PERMISSION_REQUEST_CODE);
                     }
                 } // end check version
+                else  // permissions have been provided already
+
+                    showImageCaptured(imageName);
 
                 return;
 
@@ -591,6 +594,14 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         // To specify a folder to store the images => putExtra
         //File directory = new File (storagePath);                    // Directory of the file
         directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);                    // Directory of the file
+
+
+        /*
+        if (!Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+            Toast.makeText(this, "SD not available.", Toast.LENGTH_LONG).show();
+        }*/
+
         imageName = getImageName ();                         // Name of the file
         imageFile = new File (directory, imageName);           // File
         imageURI = Uri.fromFile(imageFile);                     // Uri of the file. It is necessary for putExtra
@@ -613,20 +624,56 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     }
 
     /**
-     *  To show the image in imageView. It is necessary to provide run-time permissions and manifest permissions for android 6.0
+     *  To show the image in imageView
      */
 
     private void showImageCaptured(String image_name) {
 
         String imagePath = storagePath + "/" + image_name ;
-        Bitmap myImg = BitmapFactory.decodeFile(imagePath);
-        // Without resize the image, when it is large, it leads into memory allocation error
-        int h = 100; // height in pixels
-        int w = 50; // width in pixels
-        myImg = Bitmap.createScaledBitmap(myImg, h, w, true);
-        imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
-        textView_imageName =  (TextView) findViewById(R.id.textView_value_imgGalleryName);
-        textView_imageName.setText(image_name);
+        File imageFile = new File(imagePath);
+        if(imageFile.exists())
+        {
+            textView_imageName.setText(image_name);
+            Bitmap myImg = BitmapFactory.decodeFile(imagePath);
+            myImg = getResizedBitmap(myImg, 90);        // To show images in imageViews, it is necessary to resize the image (otherwise => memory problems (huge arrays to store pixels))
+            imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
+            Toast.makeText(this, "Image saved correctly < 6.0.", Toast.LENGTH_LONG).show();
+
+            /*
+            // The method to show the image is different depending on operative system version
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {      // > android 6.0
+
+                Bitmap myImg = BitmapFactory.decodeFile(imagePath);
+                // Without resize the image, when it is large, it leads into memory allocation error
+                int h = 85; // height in pixels
+                int w = 50; // width in pixels
+                myImg = Bitmap.createScaledBitmap(myImg, h, w, true);
+                imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
+                textView_imageName =  (TextView) findViewById(R.id.textView_value_imgGalleryName);
+                Toast.makeText(this, "Image saved correctly > 6.0.", Toast.LENGTH_LONG).show();
+
+            }
+            else {  // < android 6.0
+
+
+               // imageView_survey_picture.setImageURI(Uri.fromFile(imageFile));
+               // Toast.makeText(this, "Image saved correctly < 6.0.", Toast.LENGTH_LONG).show();
+
+
+                Bitmap myImg = BitmapFactory.decodeFile(imagePath);
+                myImg = getResizedBitmap(myImg, 85);        // To show images in imageViews, it is necessary to resize the image (otherwise => memory problems (huge arrays to store pixels))
+                //imageView_survey_picture.setImageBitmap(myImg);
+                imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
+                Toast.makeText(this, "Image saved correctly < 6.0.", Toast.LENGTH_LONG).show();
+
+            }// end check version
+
+            */
+
+        }
+        else
+            Toast.makeText(this, "Can not find the image.", Toast.LENGTH_LONG).show();
 
     }
 
@@ -641,6 +688,26 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         matrix.postRotate(degree);
         Bitmap bmp = Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
         return bmp;
+    }
+
+    /**
+     * To resize a bitmap
+     */
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     /**

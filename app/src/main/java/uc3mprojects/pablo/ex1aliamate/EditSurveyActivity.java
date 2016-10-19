@@ -317,6 +317,7 @@ public class EditSurveyActivity extends AppCompatActivity {
 
     private void showImageCaptured(String image_name) {
 
+
         String imagePath = storagePath + "/" + image_name ;
         Bitmap myImg = BitmapFactory.decodeFile(imagePath);
         // Without resize the image, when it is large, it leads into memory allocation error
