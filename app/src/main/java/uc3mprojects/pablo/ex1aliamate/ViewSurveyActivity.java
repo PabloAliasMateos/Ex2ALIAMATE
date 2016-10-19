@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -266,7 +267,6 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
     /**
      *
-     * @param image_name
      */
 
     private void showImageCaptured(String image_name, ImageView imageView_survey_picture) {
@@ -274,8 +274,8 @@ public class ViewSurveyActivity extends AppCompatActivity {
         String imagePath = storagePath + "/" + image_name ;
         Bitmap myImg = BitmapFactory.decodeFile(imagePath);
         // Without resize the image, when it is large, it leads into memory allocation error
-        int h = 500; // height in pixels
-        int w = 250; // width in pixels
+        int h = dpToPx(200); // height in pixels
+        int w = dpToPx(100); // width in pixels
         myImg = Bitmap.createScaledBitmap(myImg, h, w, true);
         imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
 
@@ -427,7 +427,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
             // BUTTON TO EDIT SURVEY
 
-            params_btn = new RelativeLayout.LayoutParams(150,150);
+            params_btn = new RelativeLayout.LayoutParams(dpToPx(50),dpToPx(50));
             params_btn.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             params_btn.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             params_btn.setMargins(0,20,20,0);
@@ -602,6 +602,13 @@ public class ViewSurveyActivity extends AppCompatActivity {
         return  1;
     }
 
+
+
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return px;
+    }
 
 } // end class
 

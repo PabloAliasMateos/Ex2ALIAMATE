@@ -30,6 +30,7 @@ import android.support.annotation.IntegerRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,15 +85,17 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private TextView textView_tastingTime;
     private TextView textView_location;
     private TextView textView_imageName;
+
     private ImageView imageView_survey_picture;                  // Now all the methods can access to this View
     private ImageButton imageButton_clock;
-
 
     private TextView textView_date_label;
     private TextView textView_startingTime_label;
     private TextView textView_tastingTime_label;
     private TextView textView_location_label;
     private TextView textView_imageName_label;
+
+    private  Switch switchPosttasting;
 
 
     // General
@@ -110,6 +114,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int minutes_counter = 0;
     private int current_index_value = 0;                       // To detect if the current survey has been saved before and store index value
     private int tried_save = 0;
+    private int postTasting_active = 0;                         // To store the state when user rotates the screen
 
     // Report tags
 
@@ -319,9 +324,30 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             } // en onClick
         });
 
+        //6- ACTIVATE POST TASTING INTERVIEW BUTTON
+
+        findViewById(R.id.switch_post_tasting).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                switchPosttasting = (Switch) v.findViewById(R.id.switch_post_tasting);
+
+                if (switchPosttasting.isChecked()){
+                    Log.d(TAG, "MainActivity: switch activated");
+                    showPostTastingInterview ();
+                }
+                else {
+                    Log.d(TAG, "MainActivity: switch deactivated");
+                    hidePostTastingInterview ();
+                }
+
+            }
+        });
+
         Log.d(TAG, "MainActivity: onCreate()");
 
     } // end onCreate
+
 
     @Override
     protected void onRestart() {
@@ -455,6 +481,13 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
             case REQUEST_CAMERA:
 
+                String imagePath = storagePath + "/" + imageName ;
+                File imageFile = new File(imagePath);
+                if(imageFile.exists())
+                    Toast.makeText(this, "Image saved correctly.", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(this, "Can not save the image.", Toast.LENGTH_LONG).show();
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {        // Check the current SDK target version (run-time permissions => API 23)
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         showImageCaptured(imageName);
@@ -575,6 +608,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         savedInstanceState.putInt("timer_state",timerState);
         savedInstanceState.putInt("current_index_value",current_index_value);
         savedInstanceState.putInt("tried_save",tried_save);
+        savedInstanceState.putInt("postTasting_active",postTasting_active);
 
         // etc.
     }
@@ -612,8 +646,73 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
     }
 
+
     /**
-     * To calculate image name
+     *  To show post tasting interview in case of user agrees
+     */
+
+    private void showPostTastingInterview() {
+
+        RadioGroup postTastingRadioGroup;
+        postTasting_active = 1;
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_1);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_2);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_3);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_4);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_5);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_6);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_7);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+    }
+
+    /**
+     *  To hide post tasting interview in case of user does not agree or does not finish the interview
+     */
+
+    private void hidePostTastingInterview() {
+
+        RadioGroup postTastingRadioGroup;
+        postTasting_active = 0;
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_1);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_2);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_3);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_4);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_5);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_6);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_7);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+    }
+
+    /**
+     * To calculate image name depending on the date
      * @return
      */
 
@@ -635,9 +734,8 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         {
             textView_imageName.setText(image_name);
             Bitmap myImg = BitmapFactory.decodeFile(imagePath);
-            myImg = getResizedBitmap(myImg, 90);        // To show images in imageViews, it is necessary to resize the image (otherwise => memory problems (huge arrays to store pixels))
+            myImg = getResizedBitmap(myImg, dpToPx(90));        // To show images in imageViews, it is necessary to resize the image (otherwise => memory problems (huge arrays to store pixels))
             imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
-            Toast.makeText(this, "Image saved correctly < 6.0.", Toast.LENGTH_LONG).show();
 
             /*
             // The method to show the image is different depending on operative system version
@@ -673,7 +771,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
         }
         else
-            Toast.makeText(this, "Can not find the image.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Can not save the image.", Toast.LENGTH_LONG).show();
 
     }
 
@@ -772,6 +870,27 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             if (!savedInstanceState.getString("imageName").equals("-")) {  // if an image has been capture previously
                 showImageCaptured(savedInstanceState.getString("imageName"));
             }
+        }
+
+        // POST TASTING INTERVIEW ACTIVE OR NOT
+
+        if (savedInstanceState != null) {
+
+            postTasting_active = savedInstanceState.getInt("postTasting_active");
+            switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+
+            if (postTasting_active == 1) {
+
+                switchPosttasting.setChecked(true);
+                showPostTastingInterview();
+
+            }
+            else {
+
+                switchPosttasting.setChecked(false);
+                hidePostTastingInterview();
+            }
+
         }
 
         // LOCATION
@@ -881,9 +1000,10 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         try {
 
             SurveyInformation mySurvey = new SurveyInformation ();      // class to store survey values
-            readSurveyValues(mySurvey);                                 // Reads the survey values and stores the content into SurveyInformation object
+            checkSurveyComplete(mySurvey) ;                             // check if the survey is completed. If yes => set surveyStatus mySurvey attribute , if not ==> surveyStatus = 0 + visual indicators
+            readSurveyValues(mySurvey);                                 // Reads the survey values and stores the content into SurveyInformation object only if surveyStatus == 1
 
-            if (mySurvey.getSurveyStatus () == 1){                      // Status = 1 => completed => save the survey. This flag is changed in readSurveyValues
+            if (mySurvey.getSurveyStatus () == 1){                      // Status == 1 => completed => save the survey into the memory using  mySurvey attributes saved previously through readSurveyValues
 
                 directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 File survey_info = new File (directory,"EX1_2016_USERS.txt");
@@ -1071,45 +1191,47 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         RadioGroup radioGroup_3_3 = (RadioGroup) findViewById(R.id.radioGroup_3_3);
         if (radioGroup_3_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_3_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
         else {radioGroup_3_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q41
-        RadioGroup radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
-        if (radioGroup_4_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q42
-        RadioGroup radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
-        if (radioGroup_4_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_2.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_2.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q43
-        RadioGroup radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
-        if (radioGroup_4_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q44
-        RadioGroup radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
-        if (radioGroup_4_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_4.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_4.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q45
-        RadioGroup radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
-        if (radioGroup_4_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_5.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_5.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q46
-        RadioGroup radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
-        if (radioGroup_4_6.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_6.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_6.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
-        // Q47
-        RadioGroup radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
-        if (radioGroup_4_7.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_7.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
-        else {radioGroup_4_7.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
 
-    }
+        // Post-tasting interview => its verification depends on if user has agreed or not
+        switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+        if (switchPosttasting.isChecked()) {
+            // Q41
+            RadioGroup radioGroup_4_1 = (RadioGroup) findViewById(R.id.radioGroup_4_1);
+            if (radioGroup_4_1.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_1.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_1.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q42
+            RadioGroup radioGroup_4_2 = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+            if (radioGroup_4_2.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_2.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_2.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q43
+            RadioGroup radioGroup_4_3 = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+            if (radioGroup_4_3.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_3.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_3.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q44
+            RadioGroup radioGroup_4_4 = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+            if (radioGroup_4_4.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_4.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_4.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q45
+            RadioGroup radioGroup_4_5 = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+            if (radioGroup_4_5.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_5.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_5.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q46
+            RadioGroup radioGroup_4_6 = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+            if (radioGroup_4_6.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_6.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_6.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+            // Q47
+            RadioGroup radioGroup_4_7 = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+            if (radioGroup_4_7.getCheckedRadioButtonId() == -1){ mySurvey.setSurveyStatus (0) ; radioGroup_4_7.setBackgroundColor(getResources().getColor(R.color.survey_answer_incomplete));  }
+            else {radioGroup_4_7.setBackgroundColor(getResources().getColor(android.R.color.transparent));}
+        }
+
+    }  // end checkSurveyComplete
 
     /**
      *
      * To show the location value in the proper textView
      */
     private int readSurveyValues(SurveyInformation mySurvey) {
-
-
-        checkSurveyComplete(mySurvey) ;      // only if all the fields are completed, this value will keep constant
 
         if (mySurvey.getSurveyStatus() == 0) {return -1;}
         else
@@ -1166,34 +1288,59 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_3_3);
         mySurvey.setAnswer(8,getAnswerNumber(radioGroupSurvey));
         System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q41
+
+        // Post tasting interview
+        // Post-tasting interview => user does not agree => save 'x' as value
+        switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+        if (switchPosttasting.isChecked()) {
+            // Q41
             radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_1);
-        mySurvey.setAnswer(9,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q42
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_2);
-        mySurvey.setAnswer(10,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q43
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_3);
-        mySurvey.setAnswer(11,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q44
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_4);
-        mySurvey.setAnswer(12,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q45
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_5);
-        mySurvey.setAnswer(13,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q46
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_6);
-        mySurvey.setAnswer(14,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
-        // Q47
-            radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_7);
-        mySurvey.setAnswer(15,getAnswerNumber(radioGroupSurvey));
-        System.out.println (getAnswerNumber(radioGroupSurvey));
+            mySurvey.setAnswer(9,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q42
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+            mySurvey.setAnswer(10,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q43
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+            mySurvey.setAnswer(11,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q44
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+            mySurvey.setAnswer(12,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q45
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+            mySurvey.setAnswer(13,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q46
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+            mySurvey.setAnswer(14,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+            // Q47
+                radioGroupSurvey = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+            mySurvey.setAnswer(15,getAnswerNumber(radioGroupSurvey));
+            System.out.println (getAnswerNumber(radioGroupSurvey));
+        } // user agree
+
+        else {
+
+            // Q41
+            mySurvey.setAnswer(9,'x');
+            // Q42
+            mySurvey.setAnswer(10,'x');
+            // Q43
+            mySurvey.setAnswer(11,'x');
+            // Q44
+            mySurvey.setAnswer(12,'x');
+            // Q45
+            mySurvey.setAnswer(13,'x');
+            // Q46
+            mySurvey.setAnswer(14,'x');
+            // Q47
+            mySurvey.setAnswer(15,'x');
+
+        }
 
         return 0;}
     }
@@ -1236,5 +1383,15 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
 
         return questionCode;
     }
+
+
+
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return px;
+    }
+
+
 
 } // End class

@@ -104,6 +104,7 @@
     <!-- GROUP 4: POST-TASTING INTERVIEW
     ======================================================================================== -->
     <string name="group_4">Post-tasting interview</string>
+    <string name="request_posttasting">Activate post-tasting interview</string>
 
     <!-- Question 4.1-->
     <string name="question_4_1">Age group?:</string>

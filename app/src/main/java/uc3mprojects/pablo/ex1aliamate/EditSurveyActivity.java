@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -21,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,8 @@ public class EditSurveyActivity extends AppCompatActivity {
     private RadioButton radioButton_survey;
 
     private ImageButton imageButton_clock;
+
+    private  Switch switchPosttasting;
 
     // General
 
@@ -199,7 +203,7 @@ public class EditSurveyActivity extends AppCompatActivity {
     // ========================================================================================================================================
 
     /**
-     *      To store all lines contented into EX1_2016_USERS.txt into a list
+     *  To store all lines contented into EX1_2016_USERS.txt into a list
      */
 
     List<String> readEX1_2016_USERS () {
@@ -321,11 +325,13 @@ public class EditSurveyActivity extends AppCompatActivity {
         String imagePath = storagePath + "/" + image_name ;
         Bitmap myImg = BitmapFactory.decodeFile(imagePath);
         // Without resize the image, when it is large, it leads into memory allocation error
-        int h = 100; // height in pixels
-        int w = 50; // width in pixels
+        int h = dpToPx(90); // height in pixels
+        int w = dpToPx(50); // width in pixels
         myImg = Bitmap.createScaledBitmap(myImg, h, w, true);
         imageView_survey_picture = (ImageView) findViewById(R.id.imageView_survey_picture);
         imageView_survey_picture.setImageBitmap(rotateImage(myImg, 90));
+
+
 
     }
 
@@ -525,131 +531,160 @@ public class EditSurveyActivity extends AppCompatActivity {
 
                     case 9: //Q41
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_5);
-                            radioButton_survey.setChecked(true);}
+                        // Check if user has agreed post tasting interview
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+
+                            showPostTastingInterview();     // This method only is necessary to be called once
+
+                            switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+                            switchPosttasting.setChecked(true);
+                            switchPosttasting.setClickable(false);
+
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_1_5);
+                                radioButton_survey.setChecked(true);}
+                        }
+                        else {
+
+                            switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+                            switchPosttasting.setChecked(false);
+                            switchPosttasting.setClickable(false);
+
+                        }
                         break;
 
                     case 10: //Q42
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_5);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_2_5);
+                                radioButton_survey.setChecked(true);}
+                        }
                         break;
 
                     case 11: //Q43
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_5);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_3_5);
+                                radioButton_survey.setChecked(true);}
+                        }
                         break;
 
                     case 12: //Q44
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_3);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_4_3);
+                                radioButton_survey.setChecked(true);}
+                        }
 
                     case 13: //Q45
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_5);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_5_5);
+                                radioButton_survey.setChecked(true);}
+                        }
                         break;
 
                     case 14: //Q46
 
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_5);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_6_5);
+                                radioButton_survey.setChecked(true);}
+                        }
                         break;
 
                     case 15: //Q47
-
-                        if (survey_values[i] == '1') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_1);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '2') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_2);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '3') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_3);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '4') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_4);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '5') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_5);
-                            radioButton_survey.setChecked(true);}
-                        if (survey_values[i] == '6') {
-                            radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_6);
-                            radioButton_survey.setChecked(true);}
+                        if (survey_values[i] != 'x') {      // if == 'x' means that user has not agreed post tasting interview
+                            if (survey_values[i] == '1') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_1);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '2') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_2);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '3') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_3);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '4') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_4);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '5') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_5);
+                                radioButton_survey.setChecked(true);}
+                            if (survey_values[i] == '6') {
+                                radioButton_survey = (RadioButton) findViewById(R.id.radioButton_4_7_6);
+                                radioButton_survey.setChecked(true);}
+                        }
                         break;
 
                 } // end switch
@@ -905,6 +940,75 @@ public class EditSurveyActivity extends AppCompatActivity {
         answerNumber = id_radioButton.charAt(index); // it returns the character at the specified index
 
         return answerNumber;
+    }
+
+    /**
+     *  To show post tasting interview in case of user agrees
+     */
+
+    private void showPostTastingInterview() {
+
+        RadioGroup postTastingRadioGroup;
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_1);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_2);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_3);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_4);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_5);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_6);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_7);
+        postTastingRadioGroup.setVisibility(View.VISIBLE);
+
+    }
+
+    /**
+     *  To hide post tasting interview in case of user does not agree or does not finish the interview
+     */
+
+    private void hidePostTastingInterview() {
+
+        RadioGroup postTastingRadioGroup;
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_1);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_2);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_3);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_4);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_5);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_6);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+        postTastingRadioGroup = (RadioGroup) this.findViewById(R.id.radioGroup_4_7);
+        postTastingRadioGroup.setVisibility(View.GONE);
+
+    }
+
+
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return px;
     }
 
 } // end class
