@@ -79,14 +79,14 @@
         android:layout_below="@+id/button_ViewSurvey"/>
 
     <EditText
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:text="Agent ID"
         android:textSize="12sp"
         android:layout_centerVertical="true"
-        android:layout_marginRight="30dp"
         android:layout_alignLeft="@+id/button_AddAgent"
+        android:layout_alignRight="@+id/button_AddAgent"
         android:layout_toEndOf="@+id/button_AddAgent"
         android:layout_toRightOf="@+id/button_AddAgent"
         android:textColor="@color/answer"

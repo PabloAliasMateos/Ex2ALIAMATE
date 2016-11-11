@@ -2,9 +2,13 @@ package uc3mprojects.pablo.ex1aliamate;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +19,16 @@ import android.view.Window;
 import android.view.animation.Interpolator;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+
+
 public class MainActivity extends AppCompatActivity {
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -23,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int MEMORY_PERMISSION_REQUEST_CODE = 2;
     Intent intent;
+
+    //String stringUrl= "http://localhost/webservice/read_DB.php";
+    String stringUrl= "http://127.0.0.2/webservice/read_DB.php";
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ACTIVITY LIFE-CYCLE METHODS
@@ -74,7 +91,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
+        // Connecting to the server to register a new agent
+
+        findViewById(R.id.button_AddAgent).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo= connMgr.getActiveNetworkInfo();
+
+                if (networkInfo!= null && networkInfo.isConnected())
+                {
+                    new addAgent().execute(stringUrl);
+                }
+                else {// error message for no network available}
+
+                    Toast.makeText(getBaseContext(), "NO NETWORK AVAILABLE", Toast.LENGTH_LONG).show();
+
+                }
+
+            }
+        });
+
+    } // end onCrete
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ACTIVITY METHODS
@@ -153,6 +192,101 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();                              // showing the dialog
 
         return;
+    }
+
+
+    /**
+     * To communicate with the server
+     */
+
+    private class addAgent extends AsyncTask <String, String, String>
+    {
+        //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
+
+        URL url = null;
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            //1- Enter URL address where your php file resides
+
+            try {
+                //url = new URL(urls[0]); // arg 0 is the URL
+                //url = new URL("http://www.android.com/"); // arg 0 is the URL
+                url = new URL("http://192.168.1.48/webservice/read_DB.php"); // arg 0 is the URL
+            } catch (MalformedURLException e) {
+                //Toast.makeText(getBaseContext(), "ERROR CREATING URL OBJECT", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+
+            //2- Setup HttpURLConnection class to send and receive data from php and mysql and get the data
+
+            try {
+
+                // Configuration
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(1500/*milliseconds*/);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+                // Get data
+                InputStream is = null;
+                String contentAsString = "";
+                int response = conn.getResponseCode();
+                if (response == 200) {
+                    is = conn.getInputStream();
+                    conn.disconnect();
+
+                    // Convert input string to string
+                    String string_DB = "";
+                    string_DB = inputStreamtoString (is);
+                    System.out.println(string_DB);
+
+                    return contentAsString;
+                }
+                else {conn.disconnect();}
+
+                if (is != null) is.close();
+
+                return contentAsString;
+            }
+
+             catch (IOException e) {
+                 System.out.println("pablo_______");
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+        }
+    }
+
+
+    // To convert input stream to string
+
+
+    String inputStreamtoString (InputStream is) {
+
+        BufferedReader r = new BufferedReader(new InputStreamReader(is));
+        StringBuilder total = new StringBuilder();
+        String line;
+        try {
+            while ((line = r.readLine()) != null) {
+                total.append(line).append('\n');
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return total.toString();
+
     }
 
 
