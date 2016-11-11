@@ -19,14 +19,21 @@ import android.view.Window;
 import android.view.animation.Interpolator;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import java.net.URLEncoder;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,9 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int MEMORY_PERMISSION_REQUEST_CODE = 2;
     Intent intent;
-
+    String IP = "192.168.1.48";
     //String stringUrl= "http://localhost/webservice/read_DB.php";
-    String stringUrl= "http://127.0.0.2/webservice/read_DB.php";
+    String stringUrl_agents_read= "http://"+IP+"/webservice/read_DB_agents.php";
+    String stringUrl_agents_write= "http://"+IP+"/webservice/write_DB_agents.php";
+    String stringUrl_users_read= "http://"+IP+"/webservice/read_DB_users.php";
+    String stringUrl_users_write= "http://"+IP+"/webservice/write_DB_users.php";
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ACTIVITY LIFE-CYCLE METHODS
@@ -102,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (networkInfo!= null && networkInfo.isConnected())
                 {
-                    new addAgent().execute(stringUrl);
+                    new addAgent().execute(stringUrl_agents_write);
+                   // new readAgentTable().execute(stringUrl_agents_read);
                 }
                 else {// error message for no network available}
 
@@ -196,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * To communicate with the server
+     * To communicate with the server. read agent table content
      */
 
-    private class addAgent extends AsyncTask <String, String, String>
+    private class readAgentTable extends AsyncTask <String, String, String>
     {
         //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
 
@@ -213,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //url = new URL(urls[0]); // arg 0 is the URL
                 //url = new URL("http://www.android.com/"); // arg 0 is the URL
-                url = new URL("http://192.168.1.48/webservice/read_DB.php"); // arg 0 is the URL
+                url = new URL(urls[0]); // arg 0 is the URL
             } catch (MalformedURLException e) {
                 //Toast.makeText(getBaseContext(), "ERROR CREATING URL OBJECT", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
@@ -254,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
              catch (IOException e) {
-                 System.out.println("pablo_______");
                 e.printStackTrace();
             }
 
@@ -267,6 +277,47 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
         }
     }
+
+
+    /**
+     * To communicate with the server. read agent table content
+     */
+
+    private class addAgent extends AsyncTask <String, String, String>
+    {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection conn = null;
+
+            try {
+                URL url;
+                url = new URL(params[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ){
+                    InputStream is = conn.getInputStream();
+                }else{
+                    InputStream err = conn.getErrorStream();
+                }
+                return "Done";
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return null; }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+        }
+    }
+
 
 
     // To convert input stream to string
