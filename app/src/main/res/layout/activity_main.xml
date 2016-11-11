@@ -67,6 +67,33 @@
         android:layout_centerVertical="true"
         android:layout_above="@+id/button_ViewSurvey"/>
 
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="@string/AddAgent"
+        android:textSize="12dp"
+        android:id="@+id/button_AddAgent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/button_ViewSurvey"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Agent ID"
+        android:textSize="12sp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="30dp"
+        android:layout_alignLeft="@+id/button_AddAgent"
+        android:layout_toEndOf="@+id/button_AddAgent"
+        android:layout_toRightOf="@+id/button_AddAgent"
+        android:textColor="@color/answer"
+        android:backgroundTint="@color/answer"
+        android:id="@+id/editText_register_agent_ID"
+        android:layout_below="@+id/button_AddAgent"/>
+
 
 
 </RelativeLayout>

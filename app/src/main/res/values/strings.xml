@@ -6,6 +6,7 @@
     <string name="studentName">Alías Mateos, Pablo</string>
     <string name="ViewSurveyName">VIEW SURVEY</string>
     <string name="StartSurveyName">START SURVEY</string>
+    <string name="AddAgent">REGISTER AGENT</string>
     <string name="buttonCameraName">PHOTO</string>
     <string name="buttonTastingTimeName">Tasting Time</string>
     <string name="buttonSaveSurveyName">Save survey</string>
@@ -13,9 +14,6 @@
     <!--======================================================================================== -->
     <!-- STORAGE PATH
         ======================================================================================== -->
-
-
-
 
     <!--======================================================================================== -->
     <!-- SURVEY

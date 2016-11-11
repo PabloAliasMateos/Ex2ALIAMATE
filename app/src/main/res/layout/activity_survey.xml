@@ -25,6 +25,7 @@
         <ImageButton
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_weight="1"
 
             app:srcCompat="@drawable/camera_image"
             android:scaleType="fitCenter"

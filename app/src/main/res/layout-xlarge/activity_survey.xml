@@ -227,6 +227,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginLeft="15dp">
 
         <!-- ScrollView only can have one direct child => LinearLayout inside LinearLayout -->
@@ -272,7 +274,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
-                android:id="@+id/radioGroup_1_1">
+                android:id="@+id/radioGroup_1_1"
+                android:animateLayoutChanges="false">
                 <RadioButton
                     android:text="@string/answer_1_1_1"
                     android:textColor="@color/answer"
@@ -878,10 +881,12 @@
                 android:textSize="16sp"/>
 
             <Switch
-                android:text="request_posttasting"
+                android:text="@string/request_posttasting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/switch_1" />
+                android:textSize="12sp"
+                android:textColor="@color/answer"
+                android:id="@+id/switch_post_tasting" />
 
             <!-- Question 1
             ======================================================================================== -->
@@ -904,7 +909,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
-                android:id="@+id/radioGroup_4_1">
+                android:id="@+id/radioGroup_4_1"
+                android:visibility="gone">
                 <RadioButton
                     android:text="@string/answer_4_1_1"
                     android:textColor="@color/answer"
@@ -983,6 +989,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_2">
                 <RadioButton
                     android:text="@string/answer_4_2_1"
@@ -1062,6 +1069,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_3">
                 <RadioButton
                     android:text="@string/answer_4_3_1"
@@ -1141,6 +1149,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_4">
                 <RadioButton
                     android:text="@string/answer_4_4_1"
@@ -1198,6 +1207,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_5">
                 <RadioButton
                     android:text="@string/answer_4_5_1"
@@ -1277,6 +1287,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_6">
                 <RadioButton
                     android:text="@string/answer_4_6_1"
@@ -1356,6 +1367,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="20dp"
+                android:visibility="gone"
                 android:id="@+id/radioGroup_4_7">
                 <RadioButton
                     android:text="@string/answer_4_7_1"

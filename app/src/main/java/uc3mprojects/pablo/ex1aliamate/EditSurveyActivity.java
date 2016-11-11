@@ -198,6 +198,41 @@ public class EditSurveyActivity extends AppCompatActivity {
 
     }
 
+
+
+    @Override
+    public void onBackPressed() {
+
+        // DIALOG TO EXIT OR NOT
+
+        AlertDialog.Builder myBuild = new AlertDialog.Builder(this);
+        myBuild.setMessage("Are you sure you want to close the current survey?");
+        myBuild.setTitle("EXIT EDIT/VIEW SURVEY");
+        // Positive button
+        myBuild.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // IF USER PRESSES OK
+                finish();       // android internal function to close the activity
+            }
+        });
+        // Negative button
+        myBuild.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // IF USER PRESSES CANCEL
+                dialog.cancel();    // android internal function to keep alive the activity
+            }
+        });
+
+        AlertDialog dialog = myBuild.create();      // creating the dialog
+        dialog.show();                              // showing the dialog
+
+        return;
+    }
+
+
+
     // ========================================================================================================================================
     // NON-OVERRIDE METHODS
     // ========================================================================================================================================
@@ -785,6 +820,8 @@ public class EditSurveyActivity extends AppCompatActivity {
 
             //Reads and store txt file content
 
+            if (survey_info.exists()){
+
             FileReader survey_info_reader = new FileReader(survey_info);
             BufferedReader b = new BufferedReader(survey_info_reader);
             b = new BufferedReader(survey_info_reader);
@@ -832,6 +869,9 @@ public class EditSurveyActivity extends AppCompatActivity {
             survey_info_writer.flush();
             survey_info_writer.close();
 
+            Toast.makeText(this, "Survey updated successfully.", Toast.LENGTH_LONG).show();
+
+            } // end if file exists
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -892,34 +932,39 @@ public class EditSurveyActivity extends AppCompatActivity {
         radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_3_3);
         mySurvey.setAnswer(8,getAnswerNumber(radioGroup_survey));
         System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q41
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_1);
-        mySurvey.setAnswer(9,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q42
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_2);
-        mySurvey.setAnswer(10,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q43
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_3);
-        mySurvey.setAnswer(11,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q44
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_4);
-        mySurvey.setAnswer(12,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q45
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_5);
-        mySurvey.setAnswer(13,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q46
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_6);
-        mySurvey.setAnswer(14,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
-        // Q47
-        radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_7);
-        mySurvey.setAnswer(15,getAnswerNumber(radioGroup_survey));
-        System.out.println (getAnswerNumber(radioGroup_survey));
+
+        // Post-tasting interview
+        switchPosttasting = (Switch) findViewById(R.id.switch_post_tasting);
+        if (switchPosttasting.isChecked()){
+            // Q41
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_1);
+            mySurvey.setAnswer(9,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q42
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_2);
+            mySurvey.setAnswer(10,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q43
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_3);
+            mySurvey.setAnswer(11,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q44
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_4);
+            mySurvey.setAnswer(12,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q45
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_5);
+            mySurvey.setAnswer(13,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q46
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_6);
+            mySurvey.setAnswer(14,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+            // Q47
+            radioGroup_survey = (RadioGroup) findViewById(R.id.radioGroup_4_7);
+            mySurvey.setAnswer(15,getAnswerNumber(radioGroup_survey));
+            System.out.println (getAnswerNumber(radioGroup_survey));
+        }
 
         return 0;
     }
