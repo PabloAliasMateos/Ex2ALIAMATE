@@ -94,6 +94,56 @@
         android:id="@+id/editText_register_agent_ID"
         android:layout_below="@+id/button_AddAgent"/>
 
+    <EditText
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="192.168.1.48"
+        android:textSize="12sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:textColor="@color/answer"
+        android:backgroundTint="@color/answer"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:id="@+id/editText_serverIP" />
+
+    <EditText
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="root"
+        android:textSize="12sp"
+        android:layout_alignLeft="@+id/editText_serverIP"
+        android:layout_below="@+id/editText_serverIP"
+        android:textColor="@color/answer"
+        android:backgroundTint="@color/answer"
+        android:id="@+id/editText_userName" />
+
+    <EditText
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="EX2ALIAMATE"
+        android:textSize="12sp"
+        android:layout_alignLeft="@+id/editText_userName"
+        android:layout_below="@+id/editText_userName"
+        android:textColor="@color/answer"
+        android:backgroundTint="@color/answer"
+        android:id="@+id/editText_userPass" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/LOGIN"
+        android:textSize="12dp"
+        android:id="@+id/button_login"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp" />
+
+
 
 
 </RelativeLayout>

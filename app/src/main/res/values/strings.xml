@@ -7,6 +7,7 @@
     <string name="ViewSurveyName">VIEW SURVEY</string>
     <string name="StartSurveyName">START SURVEY</string>
     <string name="AddAgent">REGISTER AGENT</string>
+    <string name="LOGIN">LOGIN</string>
     <string name="buttonCameraName">PHOTO</string>
     <string name="buttonTastingTimeName">Tasting Time</string>
     <string name="buttonSaveSurveyName">Save survey</string>
