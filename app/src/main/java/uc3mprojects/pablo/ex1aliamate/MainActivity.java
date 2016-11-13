@@ -15,10 +15,14 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Interpolator;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -37,6 +41,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,17 +56,17 @@ public class MainActivity extends AppCompatActivity {
 
     // SERVER CONFIGURATION (IP + FILES)
 
-    private String IP = "192.168.1.48";
     private String userName;
     private String userPass;
     private String serverIP;
 
     //String stringUrl= "http://localhost/webservice/read_DB.php";
-    private String stringUrl_agents_read= "http://"+IP+"/webservice/read_DB_agents.php";
-    private String stringUrl_agents_write= "http://"+IP+"/webservice/write_DB_agents.php";
-    private String stringUrl_users_read= "http://"+IP+"/webservice/read_DB_users.php";
-    private String stringUrl_users_write= "http://"+IP+"/webservice/write_DB_users.php";
-    private String stringUrl_login= "http://"+IP+"/webservice/login.php";
+    private String stringUrl_agents_read;
+    private String stringUrl_agents_write;
+    private String stringUrl_users_read;
+    private String stringUrl_users_write;
+    private String stringUrl_login;
+    private String stringUrl_addAgent;
 
     // VIEWS
 
@@ -68,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
     private EditText editText_userName;
     private EditText editText_userPass;
     private EditText editText_serverIP;
+
+    private Button button_ViewSurvey;
+    private Button button_StartSurvey;
+    private Button button_AddAgent;
+    private Button button_login;
+
+    private Spinner spinner_Agents;
 
     // VARIABLES
 
@@ -145,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     if (!agentID.equals("Agent ID") ) {
 
                         //new addAgent().execute(stringUrl_agents_write);
-                        new newAgentRequest().execute (stringUrl_agents_read);
+                        new addAgent().execute (stringUrl_addAgent);
 
                     }
 
@@ -191,8 +204,16 @@ public class MainActivity extends AppCompatActivity {
                         //new addAgent().execute(stringUrl_agents_write);
                         //new newAgentRequest().execute (stringUrl_agents_read);
 
-                        //3 Calling server php web service LOGIN file
+                        //3 Updating URLs
+
+                        stringUrl_agents_read= "http://"+serverIP+"/webservice/read_DB_agents.php";
+                        stringUrl_agents_write= "http://"+serverIP+"/webservice/write_DB_agents.php";
+                        stringUrl_users_read= "http://"+serverIP+"/webservice/read_DB_users.php";
+                        stringUrl_users_write= "http://"+serverIP+"/webservice/write_DB_users.php";
                         stringUrl_login= "http://"+serverIP+"/webservice/login.php";
+                        stringUrl_addAgent= "http://"+serverIP+"/webservice/add_agent.php";
+
+                        //3 Calling server php web service LOGIN file
                         new login().execute(stringUrl_login);
 
                     }
@@ -208,6 +229,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // SPINNER: to show agents stored
+
+        findViewById(R.id.spinner_agents).setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //Toast.makeText(getBaseContext(), "SNNIPER TOUCHED", Toast.LENGTH_LONG).show();
+
+                ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo= connMgr.getActiveNetworkInfo();
+
+                if (networkInfo!= null && networkInfo.isConnected())
+                {
+
+                    //3 Updating URLs
+
+                    stringUrl_agents_read= "http://"+serverIP+"/webservice/read_DB_agents.php";
+
+                    //3 Calling server php web service LOGIN file
+                    spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+
+                    MainActivity activity = MainActivity.this;
+                    if ( spinner_Agents.isClickable())
+                        new readAgentTable(activity).execute(stringUrl_agents_read);
+
+
+                }
+                else {// error message for no network available}
+
+                    Toast.makeText(getBaseContext(), "NO NETWORK AVAILABLE", Toast.LENGTH_LONG).show();
+
+                }
+
+
+
+                return false;
+            }
+
+        });
+
+
 
     } // end onCrete
 
@@ -381,12 +444,39 @@ public class MainActivity extends AppCompatActivity {
             String aux = result.toString();
             // Check if it has been possible that php file connects to the server with the input values (username, password and server IP address)
             if (result.equals("Successful\r"))
+            {
                 Toast.makeText(getBaseContext(), "LOGIN SUCCESSFUL", Toast.LENGTH_LONG).show();
+
+                // Enabling functionalities
+
+                button_AddAgent = (Button) findViewById(R.id.button_AddAgent);
+                button_StartSurvey = (Button) findViewById(R.id.button_StartSurvey);
+                button_ViewSurvey = (Button) findViewById(R.id.button_ViewSurvey);
+                editText_register_agent_ID = (EditText) findViewById(R.id.editText_register_agent_ID);
+                editText_serverIP = (EditText) findViewById(R.id.editText_serverIP);
+                editText_userPass = (EditText) findViewById(R.id.editText_userPass);
+                editText_userName = (EditText) findViewById(R.id.editText_userName);
+                button_login = (Button) findViewById(R.id.button_login);
+                spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+
+                button_AddAgent.setEnabled(true);
+                button_StartSurvey.setEnabled(true);
+                button_ViewSurvey.setEnabled(true);
+                editText_register_agent_ID.setEnabled(true);
+
+                editText_serverIP.setEnabled(false);
+                editText_userPass.setEnabled(false);
+                editText_userName.setEnabled(false);
+                button_login.setEnabled(false);
+
+                spinner_Agents.setClickable(true);
+
+
+            }
             else
                 Toast.makeText(getBaseContext(), "FAILED TO CONNECT TO THE SERVER (invalid login)", Toast.LENGTH_LONG).show();
         }
     }
-
 
 
     /**
@@ -395,6 +485,16 @@ public class MainActivity extends AppCompatActivity {
 
     private class readAgentTable extends AsyncTask <String, String, String>
     {
+
+        public MainActivity activity;
+
+        // Constructor to access activity context from asynctask
+
+        public readAgentTable(MainActivity a)
+        {
+            this.activity = a;
+        }
+
         //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
 
         URL url = null;
@@ -436,15 +536,15 @@ public class MainActivity extends AppCompatActivity {
                     // Convert input string to string
 
                     string_DB_agents = inputStreamtoString (is);
-                    System.out.println(string_DB_agents);
 
-                    return contentAsString;
+
+                    return string_DB_agents;
                 }
                 else {conn.disconnect();}
 
                 if (is != null) is.close();
 
-                return contentAsString;
+                return "Failed";
             }
 
              catch (IOException e) {
@@ -456,8 +556,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(String string_DB_agents) {
+            super.onPostExecute(string_DB_agents);
+            System.out.println(string_DB_agents);
+            Toast.makeText(getBaseContext(), string_DB_agents, Toast.LENGTH_LONG).show();
+            // Update spinner list
+            spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+            // Create list of arrays to load into the spinner
+            List<String> spinnerArray =  new ArrayList<String>();
+            spinnerArray.add("Select Agent ID");
+            spinnerArray.add("TEST_1");
+            spinnerArray.add("TEST_2");
+            spinnerArray.add("TEST_3");
+
+            //
+           // ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity.getBaseContext(),android.R);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, spinnerArray);
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner_Agents.setAdapter(adapter);
+
 
         }
     }
@@ -487,9 +606,22 @@ public class MainActivity extends AppCompatActivity {
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                 // Send Agent info
 
-                wr.writeBytes("AgentID="+agentID);
-                wr.flush();
-                wr.close();
+                //wr.writeBytes("AgentID="+agentID);
+                //wr.flush();
+                //wr.close();
+
+                //Create JSONObject here
+                JSONObject jsonParam = new JSONObject();
+                try {
+                    jsonParam.put("agentID", agentID);
+                    System.out.println(jsonParam.toString());
+                    //wr.writeBytes(URLEncoder.encode(jsonParam.toString(),"UTF-8"));
+                    wr.writeBytes(jsonParam.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ){
 

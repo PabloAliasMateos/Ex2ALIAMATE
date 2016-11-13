@@ -55,7 +55,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="5dp"
-        />
+        android:enabled="false" />
 
     <Button
         android:layout_width="180dp"
@@ -65,7 +65,8 @@
         android:id="@+id/button_StartSurvey"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_above="@+id/button_ViewSurvey"/>
+        android:layout_above="@+id/spinner_agents"
+        android:enabled="false" />
 
     <Button
         android:layout_width="180dp"
@@ -76,7 +77,8 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="5dp"
-        android:layout_below="@+id/button_ViewSurvey"/>
+        android:layout_below="@+id/button_ViewSurvey"
+        android:enabled="false" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -92,7 +94,8 @@
         android:textColor="@color/answer"
         android:backgroundTint="@color/answer"
         android:id="@+id/editText_register_agent_ID"
-        android:layout_below="@+id/button_AddAgent"/>
+        android:layout_below="@+id/button_AddAgent"
+        android:enabled="false" />
 
     <EditText
         android:layout_width="180dp"
@@ -143,7 +146,17 @@
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp" />
 
-
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_ViewSurvey"
+        android:layout_alignLeft="@+id/button_StartSurvey"
+        android:layout_alignRight="@+id/button_StartSurvey"
+        android:layout_toEndOf="@+id/button_StartSurvey"
+        android:layout_toRightOf="@+id/button_StartSurvey"
+        android:layout_marginBottom="0dp"
+        android:id="@+id/spinner_agents"
+        android:clickable="false" />
 
 
 </RelativeLayout>
