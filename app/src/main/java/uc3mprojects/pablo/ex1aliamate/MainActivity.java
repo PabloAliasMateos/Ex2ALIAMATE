@@ -220,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
 
                     else
                         Toast.makeText(getBaseContext(), "Please, complete all the fields", Toast.LENGTH_LONG).show();
-                    // new readAgentTable().execute(stringUrl_agents_read);
                 }
                 else {// error message for no network available}
 
@@ -238,32 +237,33 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 //Toast.makeText(getBaseContext(), "SNNIPER TOUCHED", Toast.LENGTH_LONG).show();
 
-                ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo= connMgr.getActiveNetworkInfo();
+                if (event.getAction() == MotionEvent.ACTION_UP) {  // It will be launched when the pressed gesture has finished
 
-                if (networkInfo!= null && networkInfo.isConnected())
-                {
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-                    //3 Updating URLs
+                    if (networkInfo != null && networkInfo.isConnected()) {
 
-                    stringUrl_agents_read= "http://"+serverIP+"/webservice/read_DB_agents.php";
+                        //3 Updating URLs
 
-                    //3 Calling server php web service LOGIN file
-                    spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+                        stringUrl_agents_read = "http://" + serverIP + "/webservice/read_DB_agents.php";
 
-                    MainActivity activity = MainActivity.this;
-                    if ( spinner_Agents.isClickable())
-                        new readAgentTable(activity).execute(stringUrl_agents_read);
+                        //3 Calling server php web service LOGIN file
+                        spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
 
+                        MainActivity activity = MainActivity.this;
+                        if (spinner_Agents.isClickable())
+                            new readAgentTable(activity).execute(stringUrl_agents_read);
+
+                        System.out.println("AQUI");
+
+                    } else {// error message for no network available}
+
+                        Toast.makeText(getBaseContext(), "NO NETWORK AVAILABLE", Toast.LENGTH_LONG).show();
+
+                    }
 
                 }
-                else {// error message for no network available}
-
-                    Toast.makeText(getBaseContext(), "NO NETWORK AVAILABLE", Toast.LENGTH_LONG).show();
-
-                }
-
-
 
                 return false;
             }
@@ -435,17 +435,20 @@ public class MainActivity extends AppCompatActivity {
                     conn.disconnect();
                 }
             }
-            return null; }
+            return "Failed_IP"; }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             System.out.println(result);
-            String aux = result.toString();
+
+            if (result.equals("Failed_IP"))
+                Toast.makeText(getBaseContext(), "IP UNREACHABLE. Please, verify server IPv4 address.", Toast.LENGTH_LONG).show();
+
             // Check if it has been possible that php file connects to the server with the input values (username, password and server IP address)
             if (result.equals("Successful\r"))
             {
-                Toast.makeText(getBaseContext(), "LOGIN SUCCESSFUL", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "LOGIN SUCCESSFUL.", Toast.LENGTH_LONG).show();
 
                 // Enabling functionalities
 
@@ -471,10 +474,9 @@ public class MainActivity extends AppCompatActivity {
 
                 spinner_Agents.setClickable(true);
 
-
             }
             else
-                Toast.makeText(getBaseContext(), "FAILED TO CONNECT TO THE SERVER (invalid login)", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "FAILED TO CONNECT TO THE SERVER. Invalid login.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -488,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
 
         public MainActivity activity;
 
-        // Constructor to access activity context from asynctask
+        // Constructor to access activity context from asynctask. MainActivity reference is nedeed to create ArrayList in onPostExecute method and update the spinner
 
         public readAgentTable(MainActivity a)
         {
@@ -559,6 +561,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String string_DB_agents) {
             super.onPostExecute(string_DB_agents);
             System.out.println(string_DB_agents);
+            System.out.println("AQUI SPINNER");
             Toast.makeText(getBaseContext(), string_DB_agents, Toast.LENGTH_LONG).show();
             // Update spinner list
             spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
