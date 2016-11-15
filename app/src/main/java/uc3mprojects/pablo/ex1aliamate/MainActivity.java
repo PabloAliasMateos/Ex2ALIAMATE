@@ -109,8 +109,23 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.button_StartSurvey).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SurveyActivity.class);  // To bind the main activity with other activity
-                startActivity(intent);
+
+                spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+                String agentSelected = spinner_Agents.getSelectedItem().toString();
+                System.out.println(agentSelected);
+
+                if (agentSelected.equals("Select Agent ID")) {
+
+                    Toast.makeText(getBaseContext(), "Please, select an Agent ID", Toast.LENGTH_LONG).show();
+                }
+                else {
+
+                    Intent intent = new Intent(MainActivity.this, SurveyActivity.class);  // To bind the main activity with other activity
+                    intent.putExtra("Agent", agentSelected);
+                    intent.putExtra("serverIP", serverIP);
+                    startActivity(intent);
+                }
+
             }
         });
 
@@ -239,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {  // It will be launched when the pressed gesture has finished
 
+
                     ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -255,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                         if (spinner_Agents.isClickable())
                             new readAgentTable(activity).execute(stringUrl_agents_read);
 
-                        System.out.println("AQUI");
+                        //System.out.println("AQUI");
 
                     } else {// error message for no network available}
 
@@ -269,6 +285,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+
+        // SPINNER DEFAULT CONFIG
+
+        spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
+        List<String> spinnerArray =  new ArrayList<String>();
+        spinnerArray.add("Select Agent ID");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_item, spinnerArray);
+
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_Agents.setAdapter(adapter);
+        spinner_Agents.setEnabled(false);
 
 
 
@@ -473,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
                 button_login.setEnabled(false);
 
                 spinner_Agents.setClickable(true);
+                spinner_Agents.setEnabled(true);
 
             }
             else
@@ -554,34 +584,76 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            return null;
+            return "Failed";
         }
 
         @Override
         protected void onPostExecute(String string_DB_agents) {
             super.onPostExecute(string_DB_agents);
-            System.out.println(string_DB_agents);
-            System.out.println("AQUI SPINNER");
-            Toast.makeText(getBaseContext(), string_DB_agents, Toast.LENGTH_LONG).show();
+
+            // Parser JSON string
+
+            List<String> spinnerArray = parserAgentStringJSON (string_DB_agents);
+
             // Update spinner list
             spinner_Agents = (Spinner) findViewById(R.id.spinner_agents);
-            // Create list of arrays to load into the spinner
-            List<String> spinnerArray =  new ArrayList<String>();
-            spinnerArray.add("Select Agent ID");
-            spinnerArray.add("TEST_1");
-            spinnerArray.add("TEST_2");
-            spinnerArray.add("TEST_3");
 
-            //
-           // ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity.getBaseContext(),android.R);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.spinner_item, spinnerArray);
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, spinnerArray);
-
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+           // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner_Agents.setAdapter(adapter);
 
-
         }
+    }
+
+
+    /**
+     * To get info from agents JSON string received from server
+     */
+
+
+    private List<String> parserAgentStringJSON(String string_db_agents) {
+        System.out.println(string_db_agents);
+
+        if (string_db_agents.equals("Error\n")) {
+
+            Toast.makeText(getBaseContext(), "There is no agent stored. Please, register a new agent.", Toast.LENGTH_LONG).show();
+            List<String> agentsList =  new ArrayList<String>();
+            agentsList.add("Select Agent ID");
+            return agentsList;
+        }
+
+        else {
+
+            List<String> agentsList =  new ArrayList<String>();
+            String[] tokens = string_DB_agents.split(",");      // Now the info is stored as follows: tokens[0] = [{"agent_number":"50" , tokens[1] = "Agent ID":"123"}, ... ,
+
+            int i = 0;
+            int j = 1;
+
+            for (String t : tokens) {
+                //System.out.println(t);      // Test
+                if (i == 1) {
+                    // System.out.println(t);      // Test
+                    String[] aux = t.split("\":\"");      // Now the info is stored as follows: tokens[0] = "Agent ID , tokens[1] = 123"}, ... ,
+
+                    if (j != tokens.length)
+                        aux[1] = aux[1].substring(0,aux[1].length() -2);      // to delete the last "}
+                    else
+                        aux[1] = aux[1].substring(0,aux[1].length() -4);      // to delete the last "}]/r
+                    //System.out.println(aux[1]);      // Test
+                    agentsList.add (aux[1]);
+                    i = 0;
+                }
+                else
+                    i ++;
+                j++;
+            }
+            return agentsList;
+        }
+
+
+
     }
 
 
@@ -661,88 +733,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
-        }
-    }
-
-
-
-    /**
-     * To communicate with the server. Evaluate if there is an agent with the same name already stored
-     */
-
-    private class newAgentRequest extends AsyncTask <String, String, String>   // Check database + add if there is no agent with the same ID
-    {
-        //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
-
-        URL url = null;
-
-        @Override
-        protected String doInBackground(String... urls) {
-
-            //1- Enter URL address where your php file resides
-
-            try {
-                //url = new URL(urls[0]); // arg 0 is the URL
-                //url = new URL("http://www.android.com/"); // arg 0 is the URL
-                url = new URL(urls[0]); // arg 0 is the URL
-            } catch (MalformedURLException e) {
-                //Toast.makeText(getBaseContext(), "ERROR CREATING URL OBJECT", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-
-            //2- Setup HttpURLConnection class to send and receive data from php and mysql and get the data
-
-            try {
-
-                // Configuration
-
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(1000 /*milliseconds*/);
-                conn.setConnectTimeout(1500/*milliseconds*/);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                conn.connect();
-                // Get data
-                InputStream is = null;
-                String contentAsString = "";
-                int response = conn.getResponseCode();
-                if (response == 200) {
-                    is = conn.getInputStream();
-                    conn.disconnect();
-
-                    // Convert input string to string
-
-                    string_DB_agents = inputStreamtoString (is);
-                    System.out.println(string_DB_agents);
-
-                    return string_DB_agents;
-                }
-                else {conn.disconnect();}
-
-                if (is != null) is.close();
-
-                return string_DB_agents;
-            }
-
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            //System.out.println(result);
-            Toast.makeText(getBaseContext(), "\""+agentID+"\"", Toast.LENGTH_LONG).show();
-            /*
-            if (result.contains("\""+agentID+"\""))
-                System.out.println("Coincidencia");
-            else
-                System.out.println("NO Coincidencia");*/
-
         }
     }
 

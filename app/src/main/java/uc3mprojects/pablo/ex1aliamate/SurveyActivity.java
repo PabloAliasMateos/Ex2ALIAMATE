@@ -1,6 +1,7 @@
 package uc3mprojects.pablo.ex1aliamate;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,12 +45,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -58,6 +64,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,11 +125,24 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     private int current_index_value = 0;                       // To detect if the current survey has been saved before and store index value
     private int tried_save = 0;
     private int postTasting_active = 0;                         // To store the state when user rotates the screen
+    private String  surveyStringJSON;
 
     // Report tags
 
     final String TAG = "States_lifeCycle";
     final String TAG2 = "Location_debug";
+
+    // URLs
+
+    private String stringUrl_users_read;
+    private String stringUrl_users_write;
+    private String stringUrl_users_edit;
+
+
+    // Server IP
+
+    private String serverIP;
+    private String surveyIndex;
 
 
     // ========================================================================================================================================
@@ -137,6 +160,27 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_survey);
+
+        // Get values received from main activiy (serverIP and agent name)
+
+        Bundle extras = getIntent().getExtras();
+        Toast.makeText(this, extras.getString("serverIP") + " " + extras.getString("Agent"), Toast.LENGTH_LONG).show();
+        serverIP = extras.getString("serverIP");
+
+        // Update URLs to call web services
+
+        stringUrl_users_read= "http://"+serverIP+"/webservice/read_DB_users.php";
+        stringUrl_users_write= "http://"+serverIP+"/webservice/add_survey.php";
+        stringUrl_users_edit= "http://"+serverIP+"/webservice/edit_survey.php";
+
+        // Load selected agent
+
+        EditText editText_agent_ID = (EditText) findViewById(R.id.editText_agent_ID);
+        editText_agent_ID.setText(extras.getString("Agent"));
+        RadioButton radioButton_3_1_1 = (RadioButton) findViewById(R.id.radioButton_3_1_1);
+        radioButton_3_1_1.setChecked(true);
+
+        // Start creating the interface
 
         imageView_survey_picture = (ImageView) findViewById(R.id.imageView_survey_picture);  // All methods can access to imageView_survey_picture view
 
@@ -609,6 +653,7 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
         savedInstanceState.putInt("current_index_value",current_index_value);
         savedInstanceState.putInt("tried_save",tried_save);
         savedInstanceState.putInt("postTasting_active",postTasting_active);
+        savedInstanceState.putString("surveyIndex",surveyIndex);
 
         // etc.
     }
@@ -929,6 +974,12 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
             }
         }
 
+        // DB SURVEY INDEX
+
+        if (savedInstanceState != null) {
+
+            surveyIndex = savedInstanceState.getString("surveyIndex");
+        }
 
     }
 
@@ -1051,6 +1102,12 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                         survey_info_writer.flush();
                         survey_info_writer.close();
 
+                        // Save survey to database
+
+                        //3 Calling server php web service addSurvey file
+                        surveyStringJSON = mySurvey.getSurveyDBFormat();
+                        new addSurveyToDB().execute(stringUrl_users_write);
+
                     }
                     else {  // Modify current survey saved previously => REPLACE SURVEY
 
@@ -1080,6 +1137,22 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
                         }
                         survey_info_writer.flush();
                         survey_info_writer.close();
+
+                        // Save survey to database
+
+                        //3 Calling server php web service edit_survey file
+                        surveyStringJSON = mySurvey.getSurveyDBFormat();
+                        try {
+                            JSONObject obj = new JSONObject(surveyStringJSON);
+                            obj.put("surveyIndex",surveyIndex);
+                            System.out.println(obj.toString());
+                            surveyStringJSON = obj.toString();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        new editSurveyDB().execute(stringUrl_users_edit);
+
                     }
                 }
                 else { // if there is no txt file to store surveys => create it
@@ -1393,5 +1466,176 @@ public class SurveyActivity extends AppCompatActivity { // without extends Fragm
     }
 
 
+    // ========================================================================================================================================
+    // SERVER METHODS
+    // ========================================================================================================================================
+
+
+    /**
+     * To communicate with the server. Add new row to DB agent table using php file (server side)
+     */
+
+    private class addSurveyToDB extends AsyncTask<String, String, String>
+    {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection conn = null;
+
+            try {
+                // Configuration
+                URL url;
+                url = new URL(params[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+                // Set output stream
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+
+                // Send Survey info
+
+                //Create JSONObject here
+
+                /*
+                JSONObject jsonParam = new JSONObject();
+                try {
+                    jsonParam.put("agentID", agentID);
+                    System.out.println(jsonParam.toString());
+                    //wr.writeBytes(URLEncoder.encode(jsonParam.toString(),"UTF-8"));
+                    wr.writeBytes(jsonParam.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }*/
+
+                wr.writeBytes(surveyStringJSON);
+                wr.flush();
+                wr.close();
+
+                if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ){
+
+                    // Read the answer from the server
+                    InputStream is = conn.getInputStream();
+
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    StringBuffer response = new StringBuffer();
+                    while((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\r');
+                    }
+                    rd.close();
+                    // It will be returned the index inside database => to provide updating functionality
+                    surveyIndex = response.toString();
+                    String[] tokens = surveyIndex.split("\":\"");
+                    surveyIndex = tokens[1].substring(0,tokens[1].length() -4);  // now the index received in JSON format is stored
+                    return response.toString();
+                }else{
+                    InputStream err = conn.getErrorStream();
+                }
+
+                return "Done";
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return "Failed"; }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    /**
+     * To communicate with the server and edit a stored row with the new values
+     */
+
+    private class editSurveyDB extends AsyncTask<String, String, String>
+    {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection conn = null;
+
+            try {
+                // Configuration
+                URL url;
+                url = new URL(params[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+                // Set output stream
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+
+                // Send Survey info
+
+                //Create JSONObject here
+
+                /*
+                JSONObject jsonParam = new JSONObject();
+                try {
+                    jsonParam.put("agentID", agentID);
+                    System.out.println(jsonParam.toString());
+                    //wr.writeBytes(URLEncoder.encode(jsonParam.toString(),"UTF-8"));
+                    wr.writeBytes(jsonParam.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }*/
+
+                wr.writeBytes(surveyStringJSON);
+                wr.flush();
+                wr.close();
+
+                if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ){
+
+                    // Read the answer from the server
+                    InputStream is = conn.getInputStream();
+
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    StringBuffer response = new StringBuffer();
+                    while((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\r');
+                    }
+                    rd.close();
+                    return response.toString();
+                }else{
+                    InputStream err = conn.getErrorStream();
+                }
+
+                return "Done";
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return "Failed"; }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
+        }
+    }
 
 } // End class

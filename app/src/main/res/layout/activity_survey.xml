@@ -703,6 +703,7 @@
                     android:layout_marginLeft="30dp"
                     android:id="@+id/radioButton_3_1_1"
                     android:textSize="12sp"
+                    android:enabled="false"
                     />
 
             </RadioGroup>
@@ -717,7 +718,8 @@
                 android:layout_marginRight="30dp"
                 android:textColor="@color/answer"
                 android:backgroundTint="@color/answer"
-                android:id="@+id/editText_agent_ID" />
+                android:id="@+id/editText_agent_ID"
+                android:enabled="false"/>
 
 
             <!-- Question 2
