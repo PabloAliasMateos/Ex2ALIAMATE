@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +33,10 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private String stringUrl_users_write;
     private String stringUrl_login;
     private String stringUrl_addAgent;
+    private String stringUrl_surveys_read;
 
     // VIEWS
 
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String agentID;
     private String string_DB_agents;
+    private String string_DB_surveys;
     private int flag_asinctasks = 0;
 
 
@@ -141,16 +148,20 @@ public class MainActivity extends AppCompatActivity {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // checking SDK target version. Newest versions need run time permissions
 
-                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                    startActivity(intent);
-                else {
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    new readSurveysTable().execute (stringUrl_surveys_read);
+
+                }
+                else
+                {
                     //permission failed, request
                     String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
                     // Check the current SDK target version (run-time permissions => API 23)
                     requestPermissions(permissionRequest, MEMORY_PERMISSION_REQUEST_CODE);
                 } // end request permission
             } else {
-                    startActivity(intent);
+                    new readSurveysTable().execute (stringUrl_surveys_read);
+
             } // end check version
 
             }
@@ -227,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                         stringUrl_users_write= "http://"+serverIP+"/webservice/write_DB_users.php";
                         stringUrl_login= "http://"+serverIP+"/webservice/login.php";
                         stringUrl_addAgent= "http://"+serverIP+"/webservice/add_agent.php";
+                        stringUrl_surveys_read = "http://"+serverIP+"/webservice/read_DB_surveys.php";
 
                         //3 Calling server php web service LOGIN file
                         new login().execute(stringUrl_login);
@@ -758,5 +770,331 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * To communicate with the server. Read agent surveys content using php file (server side)
+     */
+
+    private class readSurveysTable extends AsyncTask<String, String, String>
+    {
+
+
+        //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
+
+        URL url = null;
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            //1- Enter URL address where your php file resides
+
+            try {
+                //url = new URL(urls[0]); // arg 0 is the URL
+                //url = new URL("http://www.android.com/"); // arg 0 is the URL
+                url = new URL(urls[0]); // arg 0 is the URL
+            } catch (MalformedURLException e) {
+                //Toast.makeText(getBaseContext(), "ERROR CREATING URL OBJECT", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+
+            //2- Setup HttpURLConnection class to send and receive data from php and mysql and get the data
+
+            try {
+
+                // Configuration
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(1500/*milliseconds*/);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+                // Get data
+                InputStream is = null;
+                String contentAsString = "";
+                int response = conn.getResponseCode();
+                if (response == 200) {
+                    is = conn.getInputStream();
+                    conn.disconnect();
+
+                    // Convert input string to string
+
+                    string_DB_surveys = inputStreamtoString (is);
+
+
+                    return string_DB_surveys;
+                }
+                else {conn.disconnect();}
+
+                if (is != null) is.close();
+
+                return "Failed";
+            }
+
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return "Failed";
+        }
+
+        @Override
+        protected void onPostExecute(String string_DB_surveys) {
+            super.onPostExecute(string_DB_surveys);
+
+            if (string_DB_surveys.equals("No_surveys\n")  ) {
+
+                Toast.makeText(getBaseContext(), "NO SURVEYS STORED IN DB", Toast.LENGTH_LONG).show();
+
+            }
+
+            else if (string_DB_surveys.equals("Failed")  ) {
+
+                Toast.makeText(getBaseContext(), "ERROR. CANNOT CONNECT TO THE SERVER", Toast.LENGTH_LONG).show();
+
+            }
+            else {
+
+                // THERE ARE SURVEYS TO BE SHOWN
+
+                //1 Create aux txt with the content of DB => to take advantage of the previous exercise code
+
+                createAuxSurveysTxt(string_DB_surveys);
+
+                //2 Call view survey activity
+                System.out.println(string_DB_surveys);
+                startActivity(intent);
+
+            }
+
+
+            /*
+            // Reads the number of surveys stored
+            int surveysNumber = getNumberOfSurveys();
+
+            // Get txt content
+            List<String> txtContent = readEX1_2016_USERS();
+
+            //Add a preview of all surveys to the scroll view and show the min layout
+            showSurveysPreview (surveysNumber, txtContent);
+            */
+
+        }
+    }
+
+
+    /**
+     * Aux
+     */
+
+    private void createAuxSurveysTxt(String string_DB_surveys) {
+
+
+
+        //0 Create txt file
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File survey_info = new File (directory,"EX1_2016_USERS.txt");
+
+        FileWriter survey_info_writer = null;
+        try {
+            survey_info_writer = new FileWriter(survey_info, false); // false => overwrite the previous content
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+        //1 parse content received from DB and stored line by line into txt file
+
+        // survey_info_writer.append(lines.get(i));
+        try {
+
+            // parse survey info
+                String[] tokens = string_DB_surveys.split("\\},");      // Now the info is stored as follows:
+            // append number of surveys (it should be the first line)
+            survey_info_writer.append(String.valueOf(tokens.length));
+            System.out.println(tokens.length);
+            // add survey info
+                int i = 0;
+                int j = 1;
+
+                if (tokens.length == 1) {
+
+                    // Only one survey stored
+
+                    tokens [0] = tokens [0].substring(1,tokens[i].length() -2); // to eliminate the first [ and the last ]\n
+
+                    // To eliminate user number field
+
+                    int counter = 0;
+                    for( int k=0; k< tokens [i].length(); k++ ) {
+                        if(  tokens [i].charAt(k) == '"' ) {
+                            counter++;
+                            System.out.println(counter);
+                        }
+                        if (counter == 4) { // user number field ends at 4th occurrence
+
+                            tokens [i] = tokens [i].substring(k+2,tokens[i].length());  // to eliminate user number field
+                            tokens [i] = "{"+tokens [i]; // to add starting bracket
+
+                        }
+                    }
+
+                    System.out.println(tokens [i]);      // Test
+                    survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                    survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
+                }
+
+                else {
+
+                    for (String t : tokens) {
+
+                        if (i == 0) {
+
+                            // System.out.println(t);      // Test
+                            tokens [i] = tokens [i] + "}";
+                            tokens [i] = tokens [i].substring(1,tokens[i].length());  // to eliminate the first [
+
+                            // To eliminate user number field
+
+                            int counter = 0;
+                            for( int k=0; k< tokens [i].length(); k++ ) {
+                                if(  tokens [i].charAt(k) == '"' ) {
+                                    counter++;
+                                    System.out.println(counter);
+                                }
+                                if (counter == 4) { // user number field ends at 4th occurrence
+
+                                    tokens [i] = tokens [i].substring(k+2,tokens[i].length());  // to eliminate user number field
+                                    tokens [i] = "{"+tokens [i]; // to add starting bracket
+                                    break;
+
+                                }
+                            }
+
+
+                            System.out.println(tokens [i]);      // Test
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
+
+                        }
+
+                        else if (i != (tokens.length -1)) {      // todos los valores menos el último
+                            // System.out.println(t);      // Test
+                            tokens [i] = tokens [i] + "}";
+
+                            // To eliminate user number field
+
+                            int counter = 0;
+                            for( int k=0; k< tokens [i].length(); k++ ) {
+                                if(  tokens [i].charAt(k) == '"' ) {
+                                    counter++;
+                                    //System.out.println(counter);
+                                }
+                                if (counter == 4) { // user number field ends at 4th occurrence
+
+                                    tokens [i] = tokens [i].substring(k+2,tokens[i].length());  // to eliminate user number field
+                                    tokens [i] = "{"+tokens [i]; // to add starting bracket
+                                    break;
+
+                                }
+                            }
+
+                            System.out.println(tokens [i]);      // Test
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
+                        }
+                        else
+                        {
+                            tokens [i] = tokens [i].substring(0,tokens[i].length() -2);  // to eliminate the last ]\n
+
+                            // To eliminate user number field
+
+                            int counter = 0;
+                            for( int k=0; k< tokens [i].length(); k++ ) {
+                                if(  tokens [i].charAt(k) == '"' ) {
+                                    counter++;
+                                    //System.out.println(counter);
+                                }
+                                if (counter == 4) { // user number field ends at 4th occurrence
+
+                                    tokens [i] = tokens [i].substring(k+2,tokens[i].length());  // to eliminate user number field
+                                    tokens [i] = "{"+tokens [i]; // to add starting bracket
+                                    break;
+
+                                }
+                            }
+
+                            System.out.println(tokens [i]);      // Test
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
+                        }
+                        i++;
+                        j++;
+                    }
+
+                }
+
+            survey_info_writer.flush();
+            survey_info_writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+    } // end createAuxSurveysTxt
+
+
+
+    private String parserSurveysStringJSON(String string_DB_surveys) {
+
+            String[] tokens = string_DB_surveys.split("\\},");      // Now the info is stored as follows:
+
+            int i = 0;
+            int j = 1;
+
+        if (tokens.length == 1) {
+
+            // Only one survey stored
+
+            tokens [0] = tokens [0].substring(1,tokens[i].length() -2); // to eliminate the first [ and the last ]\n
+            System.out.println(tokens [i]);      // Test
+        }
+
+        else {
+
+            for (String t : tokens) {
+
+                if (i == 0) {
+
+                    // System.out.println(t);      // Test
+                    tokens [i] = tokens [i] + "}";
+                    tokens [i] = tokens [i].substring(1,tokens[i].length());  // to eliminate the first [
+                    System.out.println(tokens [i]);      // Test
+
+                }
+
+                else if (i != (tokens.length -1)) {      // todos los valores menos el último
+                    // System.out.println(t);      // Test
+                    tokens [i] = tokens [i] + "}";
+                    System.out.println(tokens [i]);      // Test
+                }
+                else
+                {
+                    tokens [i] = tokens [i].substring(0,tokens[i].length() -2);  // to eliminate the last ]\n
+                    System.out.println(tokens [i]);      // Test
+                }
+                i++;
+            }
+
+        }
+
+
+            return string_DB_surveys;
+
+
+    } // end parserSurveysStringJSON
 
 }   // end class MainActivity

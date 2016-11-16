@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
@@ -19,12 +20,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +37,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +55,9 @@ public class ViewSurveyActivity extends AppCompatActivity {
     final String TAG = "States_lifeCycle";
     private String storagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
     private int title_value_space = 400;
+    private String string_DB_surveys;
+    private String stringUrl_surveys_read;
+    private String serverIP;
 
     // ========================================================================================================================================
     // LIFE-CYCLE METHODS
@@ -58,6 +69,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
     //Add dynamically elements to the scroll view (all surveys stored). The number of elements to be added is the number of surveys stored => read .txt file
 
+
         // Reads the number of surveys stored
         int surveysNumber = getNumberOfSurveys();
 
@@ -66,6 +78,8 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
         //Add a preview of all surveys to the scroll view and show the min layout
         showSurveysPreview (surveysNumber, txtContent);
+
+
 
     } // end onCreate
 
@@ -154,6 +168,137 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
         return  number_surveys;
     } // end getNumberOfSurveys
+
+
+
+
+    /**
+     * To recover the surveys contented into DB
+     */
+
+    private int getNumberOfSurveysFromDB () {
+
+        int numberOfSurveys;
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File survey_info = new File (directory,"EX1_2016_USERS.txt");
+
+        int number_surveys = -1;
+
+        //Reads the number of surveys stored
+
+        if (survey_info.exists()){  // if file exists => there are surveys stored
+
+            FileReader survey_info_reader = null;
+
+            try {
+                survey_info_reader = new FileReader(survey_info);
+                BufferedReader b = new BufferedReader(survey_info_reader);
+                // number of surveys
+                String last_user_index = null;              // user index is stored in the first line. readline increments linepointer
+                last_user_index = b.readLine();
+                number_surveys = Integer.parseInt(last_user_index, 10);
+                b.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        else  // if file does not exist
+        {
+            Toast.makeText(this, "There are no surveys stored.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+
+        return  number_surveys;
+    } // end getNumberOfSurveys
+
+
+
+    /**
+     * To communicate with the server. Read agent table content using php file (server side)
+     */
+
+    private class readSurveysTable extends AsyncTask<String, String, String>
+    {
+
+
+        //ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
+
+        URL url = null;
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            //1- Enter URL address where your php file resides
+
+            try {
+                //url = new URL(urls[0]); // arg 0 is the URL
+                //url = new URL("http://www.android.com/"); // arg 0 is the URL
+                url = new URL(urls[0]); // arg 0 is the URL
+            } catch (MalformedURLException e) {
+                //Toast.makeText(getBaseContext(), "ERROR CREATING URL OBJECT", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+
+            //2- Setup HttpURLConnection class to send and receive data from php and mysql and get the data
+
+            try {
+
+                // Configuration
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(1500/*milliseconds*/);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+                // Get data
+                InputStream is = null;
+                String contentAsString = "";
+                int response = conn.getResponseCode();
+                if (response == 200) {
+                    is = conn.getInputStream();
+                    conn.disconnect();
+
+                    // Convert input string to string
+
+                    string_DB_surveys = inputStreamtoString (is);
+
+
+                    return string_DB_surveys;
+                }
+                else {conn.disconnect();}
+
+                if (is != null) is.close();
+
+                return "Failed";
+            }
+
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return "Failed";
+        }
+
+        @Override
+        protected void onPostExecute(String string_DB_surveys) {
+            super.onPostExecute(string_DB_surveys);
+
+            System.out.println(string_DB_surveys);
+            // Reads the number of surveys stored
+            int surveysNumber = getNumberOfSurveys();
+
+            // Get txt content
+            List<String> txtContent = readEX1_2016_USERS();
+
+            //Add a preview of all surveys to the scroll view and show the min layout
+            showSurveysPreview (surveysNumber, txtContent);
+
+        }
+    }
+
 
     /**
      *      To store all lines contented into EX1_2016_USERS.txt into a list
@@ -608,6 +753,26 @@ public class ViewSurveyActivity extends AppCompatActivity {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
         return px;
+    }
+
+    // To convert input stream to string
+
+
+    String inputStreamtoString (InputStream is) {
+
+        BufferedReader r = new BufferedReader(new InputStreamReader(is));
+        StringBuilder total = new StringBuilder();
+        String line;
+        try {
+            while ((line = r.readLine()) != null) {
+                total.append(line).append('\n');
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return total.toString();
+
     }
 
 } // end class
