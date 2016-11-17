@@ -69,6 +69,10 @@ public class ViewSurveyActivity extends AppCompatActivity {
 
     //Add dynamically elements to the scroll view (all surveys stored). The number of elements to be added is the number of surveys stored => read .txt file
 
+        // Get values received from main activiy (serverIP and agent name)
+
+        Bundle extras = getIntent().getExtras();
+        serverIP = extras.getString("serverIP");
 
         // Reads the number of surveys stored
         int surveysNumber = getNumberOfSurveys();
@@ -697,6 +701,7 @@ public class ViewSurveyActivity extends AppCompatActivity {
                     String user_ID;
                     user_ID = (String) finalTv_user.getText();
                     bundle.putString("USER_ID",user_ID);
+                    bundle.putString("serverIP",serverIP);
                     Intent intent = new Intent(ViewSurveyActivity.this, EditSurveyActivity.class);  // To bind the ViewSurveyActivity activity with EditSurveyActivity activity
                     intent.putExtras(bundle);
                     startActivity(intent);

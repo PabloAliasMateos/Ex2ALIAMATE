@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
@@ -26,11 +27,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +75,10 @@ public class EditSurveyActivity extends AppCompatActivity {
     private SurveyInformation currentSurvey;
     private File directory;
     private String user_ID;
+    private String serverIP;
+    private String surveyStringJSON;
+    private String stringUrl_users_edit;
+    private int user_number;
 
     // ========================================================================================================================================
     // LIFE-CYCLE METHODS
@@ -79,7 +93,9 @@ public class EditSurveyActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         user_ID = bundle.getString("USER_ID");
+        serverIP = bundle.getString("serverIP");
         System.out.println(user_ID);
+        //Toast.makeText(this, serverIP, Toast.LENGTH_LONG).show();
 
         //1- Read data base info corresponding to the selected user ID
 
@@ -91,6 +107,7 @@ public class EditSurveyActivity extends AppCompatActivity {
             System.out.println(t);
             if (t.equals(user_ID)){
                 surveyInfoDBFormat = lines.get(i+1);
+                user_number = (i/2)+1;  // /2 because of the structure of the document
                 // Generate survey object
                  currentSurvey = recoverSurveyInformation (surveyInfoDBFormat);
                // System.out.println(surveyInfoDBFormat);
@@ -126,7 +143,13 @@ public class EditSurveyActivity extends AppCompatActivity {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // checking SDK target version. Newest versions need run time permissions
 
                             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                            {
+
+
+                            // save survey locally and DB
+
                                 saveSurvey(currentSurvey);
+                            }
                             else {
                                 //permission failed, request
                                 String[] permissionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -813,6 +836,8 @@ public class EditSurveyActivity extends AppCompatActivity {
 
             updateSurveyValues(mySurvey);                                 // Update SurveyInformation object
 
+            // LOCALLY
+
             directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File survey_info = new File (directory,"EX1_2016_USERS.txt");
 
@@ -869,7 +894,25 @@ public class EditSurveyActivity extends AppCompatActivity {
             survey_info_writer.flush();
             survey_info_writer.close();
 
-            Toast.makeText(this, "Survey updated successfully.", Toast.LENGTH_LONG).show();
+
+
+            // DATABASE
+
+                //3 Calling server php web service edit_survey file
+                surveyStringJSON = mySurvey.getSurveyDBFormat();
+                try {
+                    JSONObject obj = new JSONObject(surveyStringJSON);
+                    obj.put("surveyIndex",user_number);
+                    System.out.println(obj.toString());
+                    surveyStringJSON = obj.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                stringUrl_users_edit= "http://"+serverIP+"/webservice/edit_survey.php";
+                new editSurveyDB().execute(stringUrl_users_edit);
+
+
+
 
             } // end if file exists
 
@@ -1055,5 +1098,91 @@ public class EditSurveyActivity extends AppCompatActivity {
         int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
         return px;
     }
+
+
+    /**
+     * To communicate with the server and edit a stored row with the new values
+     */
+
+    private class editSurveyDB extends AsyncTask<String, String, String>
+    {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection conn = null;
+
+            try {
+                // Configuration
+                URL url;
+                url = new URL(params[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+                // Set output stream
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+
+                // Send Survey info
+
+                //Create JSONObject here
+
+                /*
+                JSONObject jsonParam = new JSONObject();
+                try {
+                    jsonParam.put("agentID", agentID);
+                    System.out.println(jsonParam.toString());
+                    //wr.writeBytes(URLEncoder.encode(jsonParam.toString(),"UTF-8"));
+                    wr.writeBytes(jsonParam.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }*/
+
+                wr.writeBytes(surveyStringJSON);
+                wr.flush();
+                wr.close();
+
+                if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ){
+
+                    // Read the answer from the server
+                    InputStream is = conn.getInputStream();
+
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    StringBuffer response = new StringBuffer();
+                    while((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\r');
+                    }
+                    rd.close();
+                    return response.toString();
+                }else{
+                    InputStream err = conn.getErrorStream();
+                }
+
+                return "Done";
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return "Failed"; }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result.equals("Successful\r"))
+                Toast.makeText(getBaseContext(), "SURVEY UPDATED SUCCESSFULLY", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(getBaseContext(), "ERROR UPDATING SURVEY", Toast.LENGTH_LONG).show();
+        }
+    }
+
 
 } // end class

@@ -635,10 +635,21 @@ public class MainActivity extends AppCompatActivity {
             return agentsList;
         }
 
-        else {
+        else if (string_db_agents == null)
+
+        {
+
+            Toast.makeText(getBaseContext(), "FAILED TO CONNECT TO THE SERVER. Please, retry the operation", Toast.LENGTH_LONG).show();
+            List<String> agentsList =  new ArrayList<String>();
+            agentsList.add("Select Agent ID");
+            return agentsList;
+
+        }
+        else
+        {
 
             List<String> agentsList =  new ArrayList<String>();
-            String[] tokens = string_DB_agents.split(",");      // Now the info is stored as follows: tokens[0] = [{"agent_number":"50" , tokens[1] = "Agent ID":"123"}, ... ,
+            String[] tokens = string_db_agents.split(",");      // Now the info is stored as follows: tokens[0] = [{"agent_number":"50" , tokens[1] = "Agent ID":"123"}, ... ,
 
             int i = 0;
             int j = 1;
@@ -803,8 +814,8 @@ public class MainActivity extends AppCompatActivity {
                 // Configuration
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(1000 /*milliseconds*/);
-                conn.setConnectTimeout(1500/*milliseconds*/);
+                conn.setReadTimeout(5000 /*milliseconds*/);
+                conn.setConnectTimeout(5500/*milliseconds*/);
                 conn.setRequestMethod("GET");
                 conn.setDoInput(true);
                 conn.connect();
@@ -819,7 +830,6 @@ public class MainActivity extends AppCompatActivity {
                     // Convert input string to string
 
                     string_DB_surveys = inputStreamtoString (is);
-
 
                     return string_DB_surveys;
                 }
@@ -850,7 +860,7 @@ public class MainActivity extends AppCompatActivity {
 
             else if (string_DB_surveys.equals("Failed")  ) {
 
-                Toast.makeText(getBaseContext(), "ERROR. CANNOT CONNECT TO THE SERVER", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "TimeOut ERROR. CANNOT CONNECT TO THE SERVER. Please, retry the operation", Toast.LENGTH_LONG).show();
 
             }
             else {
@@ -863,6 +873,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //2 Call view survey activity
                 System.out.println(string_DB_surveys);
+                intent = new Intent(MainActivity.this, ViewSurveyActivity.class);  // To bind the main activity with other activity
+                intent.putExtra("serverIP", serverIP);
                 startActivity(intent);
 
             }
@@ -936,12 +948,13 @@ public class MainActivity extends AppCompatActivity {
 
                             tokens [i] = tokens [i].substring(k+2,tokens[i].length());  // to eliminate user number field
                             tokens [i] = "{"+tokens [i]; // to add starting bracket
+                            break;
 
                         }
                     }
 
                     System.out.println(tokens [i]);      // Test
-                    survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                    survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i+1));
                     survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
                 }
 
@@ -974,7 +987,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                             System.out.println(tokens [i]);      // Test
-                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i+1));
                             survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
 
                         }
@@ -1001,7 +1014,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             System.out.println(tokens [i]);      // Test
-                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i+1));
                             survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
                         }
                         else
@@ -1026,7 +1039,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             System.out.println(tokens [i]);      // Test
-                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i));
+                            survey_info_writer.append(System.getProperty("line.separator")+"USER_"+String.valueOf(i+1));
                             survey_info_writer.append(System.getProperty("line.separator")+tokens [i]);
                         }
                         i++;
@@ -1048,53 +1061,5 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private String parserSurveysStringJSON(String string_DB_surveys) {
-
-            String[] tokens = string_DB_surveys.split("\\},");      // Now the info is stored as follows:
-
-            int i = 0;
-            int j = 1;
-
-        if (tokens.length == 1) {
-
-            // Only one survey stored
-
-            tokens [0] = tokens [0].substring(1,tokens[i].length() -2); // to eliminate the first [ and the last ]\n
-            System.out.println(tokens [i]);      // Test
-        }
-
-        else {
-
-            for (String t : tokens) {
-
-                if (i == 0) {
-
-                    // System.out.println(t);      // Test
-                    tokens [i] = tokens [i] + "}";
-                    tokens [i] = tokens [i].substring(1,tokens[i].length());  // to eliminate the first [
-                    System.out.println(tokens [i]);      // Test
-
-                }
-
-                else if (i != (tokens.length -1)) {      // todos los valores menos el último
-                    // System.out.println(t);      // Test
-                    tokens [i] = tokens [i] + "}";
-                    System.out.println(tokens [i]);      // Test
-                }
-                else
-                {
-                    tokens [i] = tokens [i].substring(0,tokens[i].length() -2);  // to eliminate the last ]\n
-                    System.out.println(tokens [i]);      // Test
-                }
-                i++;
-            }
-
-        }
-
-
-            return string_DB_surveys;
-
-
-    } // end parserSurveysStringJSON
 
 }   // end class MainActivity
